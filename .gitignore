@@ -1,0 +1,8 @@
+.DS_Store
+data/*
+.idea/
+__pycache__/
+*.ipynb
+.vscode/
+notebooks/
+.ipynb_checkpoints/
