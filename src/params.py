@@ -1,23 +1,33 @@
-# Path variables
-PATH = "data/"
+import os
+import sys
+from pathlib import Path
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_PATH)
 
-POS = "data/train_pos.txt"
-NEG = "data/train_neg.txt"
+PATH = Path(BASE_PATH)
+DATA_PATH = PATH / 'data'
+PREPROCESSED_PATH = DATA_PATH / 'preprocessed'
 
-POS_UNIQUE = "data/preprocessed/train_pos_unique.txt"
-NEG_UNIQUE = "data/preprocessed/train_neg_unique.txt"
+# Before pre-processing
+POS = DATA_PATH / 'train_pos.txt'
+NEG = DATA_PATH / 'train_neg.txt'
 
-POS_FULL = "data/train_pos_full.txt"
-NEG_FULL = "data/train_neg_full.txt"
+# After pre-processing
+POS_PREPROCESSED = PREPROCESSED_PATH / 'pos/train_pos_preprocessed.txt'
+NEG_PREPROCESSED = PREPROCESSED_PATH / 'neg/train_neg_preprocessed.txt'
 
-POS_FULL_UNIQUE = "data/preprocessed/train_pos_full_unique.txt"
-NEG_FULL_UNIQUE = "data/preprocessed/train_neg_full_unique.txt"
+# Vocabulary
+VOCAB = PREPROCESSED_PATH / 'vocab.txt'
+VOCAB_PICKLE = PREPROCESSED_PATH / 'vocab.pkl'
+CUT_VOCAB = PREPROCESSED_PATH / "cut_vocab.txt"
+CUT_VOCAB_N = 5
 
-TEST = "data/test_data.txt"
+# Co-occurence matrix
+COOC_PICKLE = PREPROCESSED_PATH / 'cooc.pkl'
 
-TRAIN_CONCAT = "data/preprocessed/train.txt"
-TRAIN_CONCAT_UNIQUE = "data/preprocessed/train_unique.txt"
-
-TRAIN_CONCAT_FULL = "data/preprocessed/train_full.txt"
-
-VOCAB = "data/preprocessed/vocab.txt"
+# GLOVE
+NMAX = 100
+ETA = 0.001
+ALPHA = 3 / 4
+N_EPOCHS = 10
+EMBEDDINGS = PREPROCESSED_PATH / 'embeddings'

@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 from scipy.sparse import *
-import numpy as np
 import pickle
+import os
+import sys
+
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_PATH)
+
+import src.params as params
 
 
 def main():
-    with open('vocab.pkl', 'rb') as f:
+    with open(params.VOCAB_PICKLE, 'rb') as f:
         vocab = pickle.load(f)
-    vocab_size = len(vocab)
 
     data, row, col = [], [], []
     counter = 1
-    for fn in ['pos_train.txt', 'neg_train.txt']:
+    for fn in [params.POS, params.NEG]:
         with open(fn) as f:
             for line in f:
                 tokens = [vocab.get(t, -1) for t in line.strip().split()]
@@ -26,9 +31,9 @@ def main():
                     print(counter)
                 counter += 1
     cooc = coo_matrix((data, (row, col)))
-    print("summing duplicates (this can take a while)")
+    print("Summing duplicates (this can take a while)")
     cooc.sum_duplicates()
-    with open('cooc.pkl', 'wb') as f:
+    with open(params.COOC_PICKLE, 'wb') as f:
         pickle.dump(cooc, f, pickle.HIGHEST_PROTOCOL)
 
 
