@@ -4,12 +4,14 @@ import numpy as np
 import pickle
 import os
 import sys
+from numba import jit, cuda
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
 
 import src.params as params
 
 
+@jit(target ="cuda")
 def main():
     print("loading cooccurrence matrix")
     with open(params.COOC_PICKLE, 'rb') as f:

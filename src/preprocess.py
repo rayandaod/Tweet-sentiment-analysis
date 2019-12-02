@@ -16,11 +16,11 @@ import src.params as params
 stopwords = set(stopwords.words('english'))
 spell = Speller(lang='en')
 
-pos_preprocessed_path = Path(BASE_PATH + '/data/preprocessed/pos')
-neg_preprocessed_path = Path(BASE_PATH + '/data/preprocessed/neg')
+preprocessed_path = Path(BASE_PATH + '/data/preprocessed')
+pos_preprocessed_path = preprocessed_path / 'pos'
+neg_preprocessed_path = preprocessed_path / 'neg'
 
 POS_UNIQUE = pos_preprocessed_path / "train_pos_unique.txt"
-POS_FULL = "../data/train_pos_full.txt"
 POS_FULL_UNIQUE = pos_preprocessed_path / "train_pos_full_unique.txt"
 
 POS_SPACES = pos_preprocessed_path / 'train_pos_spaces.txt'
@@ -30,7 +30,6 @@ POS_SMILEYS = pos_preprocessed_path / 'train_pos_smileys.txt'
 POS_HOOKS = pos_preprocessed_path / 'train_pos_hooks.txt'
 
 NEG_UNIQUE = neg_preprocessed_path / "train_neg_unique.txt"
-NEG_FULL = "../data/train_neg_full.txt"
 NEG_FULL_UNIQUE = neg_preprocessed_path / "train_neg_full_unique.txt"
 
 NEG_SPACES = neg_preprocessed_path / 'train_neg_spaces.txt'
@@ -38,9 +37,6 @@ NEG_HASHTAGS = neg_preprocessed_path / 'train_neg_hashtags.txt'
 NEG_CONTRACT = neg_preprocessed_path / 'train_neg_contract.txt'
 NEG_SMILEYS = neg_preprocessed_path / 'train_neg_smileys.txt'
 NEG_HOOKS = neg_preprocessed_path / 'train_neg_hooks.txt'
-
-POS_PREPROCESSED = pos_preprocessed_path/ 'train_pos_preprocessed.txt'
-NEG_PREPROCESSED = neg_preprocessed_path/ 'train_neg_preprocessed.txt'
 
 
 def preprocess():
@@ -55,7 +51,7 @@ def preprocess_pos():
     in_filename = hashtags(in_filename, POS_HASHTAGS)
     in_filename = contractions(in_filename, POS_CONTRACT)
     in_filename = smileys(in_filename, POS_SMILEYS)
-    in_filename = remove_hooks(in_filename, POS_PREPROCESSED)
+    in_filename = remove_hooks(in_filename, params.POS_PREPROCESSED)
 
 
 def preprocess_neg():
@@ -65,7 +61,7 @@ def preprocess_neg():
     in_filename = hashtags(in_filename, NEG_HASHTAGS)
     in_filename = contractions(in_filename, NEG_CONTRACT)
     in_filename = smileys(in_filename, NEG_SMILEYS)
-    in_filename = remove_hooks(in_filename, NEG_PREPROCESSED)
+    in_filename = remove_hooks(in_filename, params.NEG_PREPROCESSED)
 
 
 def remove_duplicate_tweets(in_filename, out_filename):
