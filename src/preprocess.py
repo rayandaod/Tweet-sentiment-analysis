@@ -38,6 +38,10 @@ NEG_CONTRACT = neg_preprocessed_path / 'train_neg_contract.txt'
 NEG_SMILEYS = neg_preprocessed_path / 'train_neg_smileys.txt'
 NEG_HOOKS = neg_preprocessed_path / 'train_neg_hooks.txt'
 
+# OTHER VALUES
+POS_LABEL = '+1'
+NEG_LABEL = '-1'
+
 
 def preprocess():
     preprocess_pos()
@@ -46,12 +50,14 @@ def preprocess():
 
 def preprocess_pos():
     print('Pre-processing positive tweets...')
+
     in_filename = remove_duplicate_tweets(params.POS, POS_UNIQUE)
     in_filename = spaces(in_filename, POS_SPACES)
     in_filename = hashtags(in_filename, POS_HASHTAGS)
     in_filename = contractions(in_filename, POS_CONTRACT)
     in_filename = smileys(in_filename, POS_SMILEYS)
     in_filename = remove_hooks(in_filename, params.POS_PREPROCESSED)
+    in_filename = add_label(in_filename, params.POS_LABELS, POS_LABEL)
 
 
 def preprocess_neg():
@@ -62,6 +68,7 @@ def preprocess_neg():
     in_filename = contractions(in_filename, NEG_CONTRACT)
     in_filename = smileys(in_filename, NEG_SMILEYS)
     in_filename = remove_hooks(in_filename, params.NEG_PREPROCESSED)
+    in_filename = add_label(in_filename, params.NEG_LABELS, NEG_LABEL)
 
 
 def remove_duplicate_tweets(in_filename, out_filename):
@@ -76,26 +83,32 @@ def remove_duplicate_tweets(in_filename, out_filename):
     return out_filename
 
 
-def remove_both_duplicate_tweets(in_filename, out_filename):
+def remove_both_duplicate_tweets(in_filename, out_filename, out_label_filename):
     line_to_occ = {}
 
     # Populate the dictionary with tweets and occurences
     for line in open(in_filename, "r"):
-        if line in line_to_occ:
-            line_to_occ[line] += 1
+        tweet = line[2:]
+        label = line[:2]
+        if tweet in line_to_occ:
+            t = list(line_to_occ[tweet])
+            t[0] += 1
+            t = tuple(t)
+            line_to_occ[tweet] = t
         else:
-            line_to_occ[line] = 1
-
-    # Remove lines that appear >= 2 times (which means they were both in the positive, and negative dataset)
-    for x in list(line_to_occ):
-        if line_to_occ[x] >= 2:
-            line_to_occ.pop(x)
+            line_to_occ[tweet] = (1, label)
 
     # Write the remaining tweets in the output file
     outfile = open(out_filename, "w")
-    for line in line_to_occ.keys():
-        outfile.write(line)
+    out_label_file = open(out_label_filename, 'w')
+    for tweet in line_to_occ.keys():
+        if line_to_occ[tweet][0] < 2:
+            outfile.write(tweet)
+            out_label_file.write((line_to_occ[tweet][1]))
+            out_label_file.write('\n')
+
     outfile.close()
+    out_label_file.close()
     print('\tRemove both ok.')
 
 
@@ -236,6 +249,15 @@ def normalization(in_filename, out_filename):
         outfile.write('\n')
     outfile.close()
     print('\tNormalization ok.')
+    return out_filename
+
+
+def add_label(in_filename, out_filename, label_value):
+    outfile = open(out_filename, 'w')
+    for line in open(in_filename, 'r'):
+        outfile.write(label_value)
+        outfile.write(line)
+    outfile.close()
     return out_filename
 
 

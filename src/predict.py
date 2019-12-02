@@ -22,14 +22,14 @@ TEST_HOOKS = test_preprocessed_path / 'test_pos_hooks.txt'
 
 def predict():
     preprocess_test()
-    test_embeddings = t_embed.embed(params.TEST_PREPROCESSED, params.TEST_EMBEDDINGS)
-    clf = LogisticRegressionCV(cv=5, random_state=0,
-                               multi_class='multinomial').fit(X, y)
-    clf.predict(X[:2, :])
-
-    clf.predict_proba(X[:2, :]).shape
-
-    clf.score(X, y)
+    test_embeddings = t_embed.embed(params.TEST_PREPROCESSED, params.TEST_EMBEDDINGS, params.TEST_EMBEDDINGS)
+    # clf = LogisticRegressionCV(cv=5, random_state=0,
+    #                            multi_class='multinomial').fit(X, y)
+    # clf.predict(X[:2, :])
+    #
+    # clf.predict_proba(X[:2, :]).shape
+    #
+    # clf.score(X, y)
 
 
 def train():

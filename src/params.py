@@ -26,6 +26,10 @@ TEST = DATA_PATH / 'test_data.txt'
 # After pre-processing
 POS_PREPROCESSED = PREPROCESSED_PATH / 'pos/train_pos_preprocessed.txt'
 NEG_PREPROCESSED = PREPROCESSED_PATH / 'neg/train_neg_preprocessed.txt'
+TRAIN_UNIQUE = PREPROCESSED_PATH / 'train_unique.txt'
+POS_LABELS = PREPROCESSED_PATH / 'pos/train_pos_labels.txt'
+NEG_LABELS = PREPROCESSED_PATH / 'neg/train_neg_labels.txt'
+
 TEST_PREPROCESSED = PREPROCESSED_PATH / 'test/test_preprocessed.txt'
 
 # Vocabulary
@@ -45,6 +49,9 @@ ALPHA = 3 / 4
 N_EPOCHS = 10
 EMBEDDINGS = PREPROCESSED_PATH / 'embeddings'
 
+
+# TWEET EMBEDDINGS
+TWEET_EMBEDDINGS = PREPROCESSED_PATH / 'tweet_embeddings'
 
 # Prediction
 TEST_EMBEDDINGS = PREPROCESSED_PATH / 'test/embeddings'
