@@ -13,13 +13,16 @@ import src.params as params
 
 TRAIN_CONCAT = Path(BASE_PATH + "/data/preprocessed/train.txt")
 TRAIN_CONCAT_UNIQUE = Path(BASE_PATH + "/data/preprocessed/train_unique.txt")
+TRAIN_CONCAT_LABEL = Path(BASE_PATH + "/data/preprocessed/train_label.txt")
+TRAIN_CONCAT_LABEL_UNIQUE = Path(BASE_PATH + "/data/preprocessed/train_label_unique.txt")
 
 
+# TODO: separate label and tweet after removing duplicates.
 def vocab():
     # Concatenate the proprocessed versions of positive tweets and negative tweets into a new file
-    concat_files([params.POS_PREPROCESSED, params.NEG_PREPROCESSED], TRAIN_CONCAT)
-    # Remove the tweet that appear >= 2 times
-    prep.remove_both_duplicate_tweets(TRAIN_CONCAT, TRAIN_CONCAT_UNIQUE)
+    concat_files([params.POS_LABELS, params.NEG_LABELS], TRAIN_CONCAT)
+    # Remove the tweets that appear >= 2 times and separate label from tweet.
+    prep.remove_both_duplicate_tweets(TRAIN_CONCAT, TRAIN_CONCAT_UNIQUE, TRAIN_CONCAT_LABEL_UNIQUE)
     # Build the vocabulary
     counter = build_vocab(TRAIN_CONCAT_UNIQUE, params.VOCAB)
     # Only keep the tokens that appear more than n times
@@ -59,10 +62,8 @@ def cut_vocab(counter: Counter, out_filename, n=5):
     cut_counter = OrderedDict(counter.most_common())
     cut_counter = {x: cut_counter[x] for x in cut_counter if cut_counter[x] >= n}
     outfile = open(out_filename, 'w')
-    id = 1
     for key in cut_counter.keys():
-        outfile.write(str(id) + ',' + key+'\n')
-        id += 1
+        outfile.write(key+'\n')
     outfile.close()
     return counter.keys()
 
