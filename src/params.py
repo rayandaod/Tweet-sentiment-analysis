@@ -15,6 +15,7 @@ NEG = DATA_PATH / 'train_neg.txt'
 # After pre-processing
 POS_PREPROCESSED = PREPROCESSED_PATH / 'pos/train_pos_preprocessed.txt'
 NEG_PREPROCESSED = PREPROCESSED_PATH / 'neg/train_neg_preprocessed.txt'
+TRAIN_UNIQUE = PREPROCESSED_PATH / 'train_unique.txt'
 
 # Vocabulary
 VOCAB = PREPROCESSED_PATH / 'vocab.txt'
@@ -31,4 +32,5 @@ NMAX = 100
 ETA = 0.001
 ALPHA = 3 / 4
 N_EPOCHS = 10
-EMBEDDINGS = PREPROCESSED_PATH / 'embeddings'
+EMBEDDINGS = PREPROCESSED_PATH / 'embeddings.npy'
+TWEET_EMBEDDINGS = PREPROCESSED_PATH / 'tweet_embeddings'
