@@ -1,42 +1,20 @@
+import re
+import os
+import sys
 from textblob import TextBlob
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from wordsegment import load, segment
 from autocorrect import Speller
-from pathlib import Path
-import re
 
-import os
-import sys
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
+
 import src.dictionaries as dictionaries
-import src.params as params
+import src.paths as paths
 
 stopwords = set(stopwords.words('english'))
 spell = Speller(lang='en')
-
-preprocessed_path = Path(BASE_PATH + '/data/preprocessed')
-pos_preprocessed_path = preprocessed_path / 'pos'
-neg_preprocessed_path = preprocessed_path / 'neg'
-
-POS_UNIQUE = pos_preprocessed_path / "train_pos_unique.txt"
-POS_FULL_UNIQUE = pos_preprocessed_path / "train_pos_full_unique.txt"
-
-POS_SPACES = pos_preprocessed_path / 'train_pos_spaces.txt'
-POS_HASHTAGS = pos_preprocessed_path / 'train_pos_hashtags.txt'
-POS_CONTRACT = pos_preprocessed_path / 'train_pos_contract.txt'
-POS_SMILEYS = pos_preprocessed_path / 'train_pos_smileys.txt'
-POS_HOOKS = pos_preprocessed_path / 'train_pos_hooks.txt'
-
-NEG_UNIQUE = neg_preprocessed_path / "train_neg_unique.txt"
-NEG_FULL_UNIQUE = neg_preprocessed_path / "train_neg_full_unique.txt"
-
-NEG_SPACES = neg_preprocessed_path / 'train_neg_spaces.txt'
-NEG_HASHTAGS = neg_preprocessed_path / 'train_neg_hashtags.txt'
-NEG_CONTRACT = neg_preprocessed_path / 'train_neg_contract.txt'
-NEG_SMILEYS = neg_preprocessed_path / 'train_neg_smileys.txt'
-NEG_HOOKS = neg_preprocessed_path / 'train_neg_hooks.txt'
 
 # OTHER VALUES
 POS_LABEL = '+1'
@@ -46,32 +24,37 @@ NEG_LABEL = '-1'
 def preprocess():
     preprocess_pos()
     preprocess_neg()
+    # Concatenate the proprocessed versions of positive tweets and negative tweets into a new file
+    concat_files([paths.POS_LABELS, paths.NEG_LABELS], paths.TRAIN)
+    # Remove the tweets that appear >= 2 times and separate label from tweet.
+    remove_both_duplicate_tweets(paths.TRAIN, paths.TRAIN_UNIQUE, paths.TRAIN_CONCAT_LABEL_UNIQUE)
 
 
 def preprocess_pos():
     print('Pre-processing positive tweets...')
 
-    in_filename = remove_duplicate_tweets(params.POS, POS_UNIQUE)
-    in_filename = spaces(in_filename, POS_SPACES)
-    in_filename = hashtags(in_filename, POS_HASHTAGS)
-    in_filename = contractions(in_filename, POS_CONTRACT)
-    in_filename = smileys(in_filename, POS_SMILEYS)
-    in_filename = remove_hooks(in_filename, params.POS_PREPROCESSED)
-    in_filename = add_label(in_filename, params.POS_LABELS, POS_LABEL)
+    in_filename = remove_duplicate_tweets(paths.POS, paths.POS_UNIQUE)
+    in_filename = spaces(in_filename, paths.POS_SPACES)
+    in_filename = hashtags(in_filename, paths.POS_HASHTAGS)
+    in_filename = contractions(in_filename, paths.POS_CONTRACT)
+    in_filename = smileys(in_filename, paths.POS_SMILEYS)
+    in_filename = remove_hooks(in_filename, paths.POS_PREPROCESSED)
+    in_filename = add_label(in_filename, paths.POS_LABELS, POS_LABEL)
 
 
 def preprocess_neg():
     print('Pre-processing negative tweets...')
-    in_filename = remove_duplicate_tweets(params.NEG, NEG_UNIQUE)
-    in_filename = spaces(in_filename, NEG_SPACES)
-    in_filename = hashtags(in_filename, NEG_HASHTAGS)
-    in_filename = contractions(in_filename, NEG_CONTRACT)
-    in_filename = smileys(in_filename, NEG_SMILEYS)
-    in_filename = remove_hooks(in_filename, params.NEG_PREPROCESSED)
-    in_filename = add_label(in_filename, params.NEG_LABELS, NEG_LABEL)
+    in_filename = remove_duplicate_tweets(paths.NEG, paths.NEG_UNIQUE)
+    in_filename = spaces(in_filename, paths.NEG_SPACES)
+    in_filename = hashtags(in_filename, paths.NEG_HASHTAGS)
+    in_filename = contractions(in_filename, paths.NEG_CONTRACT)
+    in_filename = smileys(in_filename, paths.NEG_SMILEYS)
+    in_filename = remove_hooks(in_filename, paths.NEG_PREPROCESSED)
+    in_filename = add_label(in_filename, paths.NEG_LABELS, NEG_LABEL)
 
 
 def remove_duplicate_tweets(in_filename, out_filename):
+    print('\tRemoving duplicate tweets...')
     lines_seen = set()
     outfile = open(out_filename, "w")
     for line in open(in_filename, "r"):
@@ -84,6 +67,7 @@ def remove_duplicate_tweets(in_filename, out_filename):
 
 
 def remove_both_duplicate_tweets(in_filename, out_filename, out_label_filename):
+    print('\tRemoving both duplicates...')
     line_to_occ = {}
 
     # Populate the dictionary with tweets and occurences
@@ -113,6 +97,7 @@ def remove_both_duplicate_tweets(in_filename, out_filename, out_label_filename):
 
 
 def spaces(in_filename, out_filename):
+    print('\tHandling spaces...')
     outfile = open(out_filename, "w")
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub(' +', ' ', tweet))
@@ -122,6 +107,7 @@ def spaces(in_filename, out_filename):
 
 
 def hashtags(in_filename, out_filename):
+    print('\tHandling hashtags...')
     load()
     outfile = open(out_filename, "w")
     for tweet in open(in_filename, "r"):
@@ -148,6 +134,7 @@ def hashtags(in_filename, out_filename):
 
 
 def autocorrect(in_filename, out_filename):
+    print('\tAuto-correcting tweets...')
     outfile = open(out_filename, "w")
     for tweet in open(in_filename, "r"):
         outfile.write(' '.join([spell(w) for w in tweet.split()]))
@@ -157,6 +144,7 @@ def autocorrect(in_filename, out_filename):
 
 
 def contractions(in_filename, out_filename):
+    print('\tHandling contractions...')
     outfile = open(out_filename, "w")
     contractions = dictionaries.load_dict_contractions()
     for tweet in open(in_filename, "r"):
@@ -175,6 +163,7 @@ def contractions(in_filename, out_filename):
 
 
 def smileys(in_filename, out_filename):
+    print('\tHandling smileys...')
     outfile = open(out_filename, "w")
     smileys = dictionaries.load_dict_smileys()
     for tweet in open(in_filename, "r"):
@@ -193,6 +182,7 @@ def smileys(in_filename, out_filename):
 
 
 def numbers(in_filename, out_filename):
+    print('\tHandling numbers...')
     outfile = open(out_filename, "w")
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub('[-+]?\d*\.\d+|\d+', '<number>', tweet))
@@ -202,6 +192,7 @@ def numbers(in_filename, out_filename):
 
 
 def remove_hooks(in_filename, out_filename):
+    print('\tRemoving hooks...')
     outfile = open(out_filename, "w")
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub(' *<.*?> *', '', tweet))
@@ -211,6 +202,7 @@ def remove_hooks(in_filename, out_filename):
 
 
 def punctuation(in_filename, out_filename):
+    print('\tHandling punctuation...')
     outfile = open(out_filename, "w")
     for tweet in open(in_filename, "r"):
         tweet_blob = TextBlob(tweet)
@@ -259,6 +251,14 @@ def add_label(in_filename, out_filename, label_value):
         outfile.write(line)
     outfile.close()
     return out_filename
+
+
+def concat_files(in_filenames, out_filename):
+    with open(out_filename, 'w') as outfile:
+        for filename in in_filenames:
+            with open(filename) as infile:
+                for line in infile:
+                    outfile.write(line)
 
 
 if __name__ == '__main__':
