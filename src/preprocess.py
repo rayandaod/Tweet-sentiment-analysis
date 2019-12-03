@@ -62,12 +62,12 @@ def remove_duplicate_tweets(in_filename, out_filename):
             outfile.write(line)
             lines_seen.add(line)
     outfile.close()
-    print('\tRemove duplicates ok.')
+    print('\t\tRemove duplicates ok.')
     return out_filename
 
 
 def remove_both_duplicate_tweets(in_filename, out_filename, out_label_filename):
-    print('\tRemoving both duplicates...')
+    print('Removing both duplicates...')
     line_to_occ = {}
 
     # Populate the dictionary with tweets and occurences
@@ -102,7 +102,7 @@ def spaces(in_filename, out_filename):
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub(' +', ' ', tweet))
     outfile.close()
-    print('\tSpaces ok.')
+    print('\t\tSpaces ok.')
     return out_filename
 
 
@@ -129,7 +129,7 @@ def hashtags(in_filename, out_filename):
                 tweet_str.append(' ')
         outfile.write(''.join(tweet_str))
     outfile.close()
-    print('\tHashtags ok.')
+    print('\t\tHashtags ok.')
     return out_filename
 
 
@@ -139,7 +139,7 @@ def autocorrect(in_filename, out_filename):
     for tweet in open(in_filename, "r"):
         outfile.write(' '.join([spell(w) for w in tweet.split()]))
     outfile.close()
-    print('\tAuto-correct ok.')
+    print('\t\tAuto-correct ok.')
     return out_filename
 
 
@@ -158,7 +158,7 @@ def contractions(in_filename, out_filename):
         outfile.write(' '.join(tweet_list_new))
         outfile.write('\n')
     outfile.close()
-    print('\tContractions ok.')
+    print('\t\tContractions ok.')
     return out_filename
 
 
@@ -177,7 +177,7 @@ def smileys(in_filename, out_filename):
         outfile.write(' '.join(tweet_list_new))
         outfile.write('\n')
     outfile.close()
-    print('\tSmileys ok.')
+    print('\t\tSmileys ok.')
     return out_filename
 
 
@@ -187,7 +187,7 @@ def numbers(in_filename, out_filename):
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub('[-+]?\d*\.\d+|\d+', '<number>', tweet))
     outfile.close()
-    print('\tNumbers ok.')
+    print('\t\tNumbers ok.')
     return out_filename
 
 
@@ -197,7 +197,7 @@ def remove_hooks(in_filename, out_filename):
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub(' *<.*?> *', '', tweet))
     outfile.close()
-    print('\tHooks ok.')
+    print('\t\tHooks ok.')
     return out_filename
 
 
@@ -209,7 +209,7 @@ def punctuation(in_filename, out_filename):
         outfile.write(' '.join(tweet_blob.words))
         outfile.write('\n')
     outfile.close()
-    print('\tPunctuation ok.')
+    print('\t\tPunctuation ok.')
     return out_filename
 
 
@@ -224,7 +224,7 @@ def stopw(in_filename, out_filename):
         outfile.write(' '.join(clean_mess))
         outfile.write('\n')
     outfile.close()
-    print('\tStopwords ok.')
+    print('\t\tStopwords ok.')
     return out_filename
 
 
@@ -240,7 +240,7 @@ def normalization(in_filename, out_filename):
         outfile.write(' '.join(normalized_tweet))
         outfile.write('\n')
     outfile.close()
-    print('\tNormalization ok.')
+    print('\t\tNormalization ok.')
     return out_filename
 
 

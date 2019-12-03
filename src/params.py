@@ -1,5 +1,5 @@
 # Rather we want to run our algorithm on the whole dataset or not
-FULL = True
+FULL = False
 
 # GLOVE
 K = 20
@@ -10,3 +10,6 @@ N_EPOCHS = 10
 
 # LOGISTIC REGRESSION
 CV_FOLDS = 5
+
+# SVM
+TEST_SIZE = 0.4

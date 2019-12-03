@@ -3,6 +3,8 @@ import sys
 import numpy as np
 import csv
 from sklearn.linear_model import LogisticRegressionCV
+from sklearn import svm
+from sklearn.model_selection import train_test_split
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
@@ -47,8 +49,17 @@ def remove_indices_test():
 
 
 def logistic_regression(tweet_embeddings, labels, test_embeddings):
-    clf = LogisticRegressionCV(cv=params.CV_FOLDS, random_state=0, multi_class='multinomial')
+    clf = LogisticRegressionCV(cv=params.CV_FOLDS)
     clf.fit(tweet_embeddings, labels)
+    print(clf.score(tweet_embeddings, labels))
+    return clf.predict(test_embeddings)
+
+
+def support_vector_machines(tweet_embeddings, labels, test_embeddings):
+    X_train, X_test, y_train, y_test = train_test_split(tweet_embeddings, labels, test_size=params.TEST_SIZE)
+    clf = svm.SVC()
+    clf.fit(X_train, y_train)
+    print(clf.score(X_test, y_test))
     return clf.predict(test_embeddings)
 
 
