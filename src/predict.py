@@ -5,6 +5,10 @@ import csv
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn import svm
 from sklearn.model_selection import train_test_split
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+tk = Tokenizer()
+
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
@@ -15,17 +19,38 @@ import src.preprocess as prep
 import src.tweet_embeddings as t_embed
 
 
+from keras.models import Sequential
+from keras.layers import Dense
+
+
 def predict():
-    # remove_indices_test()
+    remove_indices_test()
     preprocess_test()
     test_embeddings = t_embed.embed(paths.TEST_PREPROCESSED, paths.TEST_EMBEDDINGS, paths.EMBEDDINGS)
     tweet_embeddings = np.load(paths.TWEET_EMBEDDINGS)
 
     with open(paths.TRAIN_CONCAT_LABEL_UNIQUE, 'r') as train_labels_file:
-        labels = [label[:-1] for label in train_labels_file]
+        labels = [int(label[:-1]) for label in train_labels_file]
 
-    label_predictions = logistic_regression(tweet_embeddings, labels, test_embeddings)
-    write_predictions_in_csv(label_predictions)
+
+    model = Sequential()
+    model.add(Dense(12, input_dim=tweet_embeddings.shape[1], activation="relu"))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(1,activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    X_train, X_test, y_train, y_test = train_test_split(tweet_embeddings, labels, test_size=params.TEST_SIZE)
+    y_train_swapped = [1 if x== -1 else -1 for x in y_train]
+    y_test_swapped = [1 if x==-1 else -1 for x in y_test]
+
+
+    print("Fitting has started.")
+    model.fit(X_train, y_train_swapped, epochs=20, batch_size=1)
+    print("Predicting has started.")
+    _, accuracy = model.evaluate(X_test, y_test)
+    print('Accuracy: %.2f' % (accuracy * 100))
+
+    #label_predictions = logistic_regression(tweet_embeddings, labels, test_embeddings)
+    #write_predictions_in_csv(label_predictions)
 
 
 def preprocess_test():
