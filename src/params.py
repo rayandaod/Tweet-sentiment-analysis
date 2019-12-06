@@ -2,7 +2,7 @@
 FULL = False
 
 # GLOVE
-K = 20
+K = 150
 NMAX = 100
 ETA = 0.001
 ALPHA = 3 / 4

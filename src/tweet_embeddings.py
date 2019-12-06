@@ -23,7 +23,7 @@ def embed(in_file, output_file, embedding_file):
     embeddings = np.load(embedding_file)
     total_tweet_number = sum(1 for _ in open(in_file, 'r'))
     tweet_embedding_matrix = np.zeros((total_tweet_number, embeddings.shape[1]))
-    print("Creating the tweet emmbeddings...")
+    print("Creating the tweet embeddings...")
     with open(in_file, 'r') as f:
         for i, tweet in enumerate(f, 0):
             tweet_embedding = np.zeros((1, embeddings.shape[1]))
