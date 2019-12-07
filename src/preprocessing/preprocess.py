@@ -1,6 +1,7 @@
 import re
 import os
 import sys
+import numpy as np
 from textblob import TextBlob
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -24,6 +25,10 @@ NEG_LABEL = '-1'
 def preprocess():
     preprocess_pos()
     preprocess_neg()
+
+    remove_indices_test()
+    preprocess_test()
+
     # Concatenate the proprocessed versions of positive tweets and negative tweets into a new file
     concat_files([paths.POS_LABELS, paths.NEG_LABELS], paths.TRAIN)
     # Remove the tweets that appear >= 2 times and separate label from tweet.
@@ -51,6 +56,26 @@ def preprocess_neg():
     in_filename = smileys(in_filename, paths.NEG_SMILEYS)
     in_filename = remove_hooks(in_filename, paths.NEG_PREPROCESSED)
     in_filename = add_label(in_filename, paths.NEG_LABELS, NEG_LABEL)
+
+
+def preprocess_test():
+    print('Pre-processing the test set...')
+    in_filename = spaces(paths.TEST_WITHOUT_INDICES, paths.TEST_SPACES)
+    in_filename = hashtags(in_filename, paths.TEST_HASHTAGS)
+    in_filename = contractions(in_filename, paths.TEST_CONTRACT)
+    in_filename = smileys(in_filename, paths.TEST_SMILEYS)
+    in_filename = remove_hooks(in_filename, paths.TEST_PREPROCESSED)
+
+
+def remove_indices_test():
+    test_file = open(paths.TEST, 'r')
+    test_file_without_i = open(paths.TEST_WITHOUT_INDICES, 'w')
+    tweets_with_indices = [tweet for tweet in test_file]
+    for i in np.arange(len(tweets_with_indices)):
+        size_to_remove = len(str(i+1))+1
+        test_file_without_i.write(tweets_with_indices[i][size_to_remove:])
+    test_file.close()
+    test_file_without_i.close()
 
 
 def remove_duplicate_tweets(in_filename, out_filename):

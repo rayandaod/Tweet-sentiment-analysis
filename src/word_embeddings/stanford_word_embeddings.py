@@ -39,12 +39,12 @@ def stanford_only_cut_vocab(stanford_pkl_filename, stanford_cut_vocab_npy_filena
                 stanford_cut_vocab_list.append(stanford_embeddings[word[:-1]])
                 new_cut_vocab_file.write(word)
             else:
-                print('{}: {} is not part of stanford word embeddings.'.format(i, word[:-1]))
+                print('\t{}: {} is not part of stanford word embeddings.'.format(i, word[:-1]))
                 i += 1
     cut_vocab_file.close()
     new_cut_vocab_file.close()
     np.save(stanford_cut_vocab_npy_filename, np.asarray(stanford_cut_vocab_list))
-    print('\tStanford word embeddings ok.')
+    print('Stanford word embeddings ok.')
 
 
 if __name__ == '__main__':

@@ -6,8 +6,13 @@ import src.paths as paths
 import numpy as np
 
 
-def tweet_embed():
-    embed(paths.TRAIN_UNIQUE, paths.TWEET_EMBEDDINGS, paths.STANFORD_EMBEDDINGS_CUT_VOCAB)
+def tweet_embed(train_tweets_path, train_tweets_embeddings_path, test_tweets_path, test_tweets_embeddings_path,
+                cut_vocab_embeddings_path):
+    print('Train set')
+    embed(train_tweets_path, train_tweets_embeddings_path, cut_vocab_embeddings_path)
+
+    print('Test set')
+    embed(test_tweets_path, test_tweets_embeddings_path, cut_vocab_embeddings_path)
 
 
 def cut_vocab_array():
@@ -23,7 +28,7 @@ def embed(in_file, output_file, embedding_file):
     embeddings = np.load(embedding_file)
     total_tweet_number = sum(1 for _ in open(in_file, 'r'))
     tweet_embedding_matrix = np.zeros((total_tweet_number, embeddings.shape[1]))
-    print("Creating the tweet embeddings...")
+    print("\tCreating the tweet embeddings...")
     with open(in_file, 'r') as f:
         for i, tweet in enumerate(f, 0):
             tweet_embedding = np.zeros((1, embeddings.shape[1]))
@@ -35,11 +40,13 @@ def embed(in_file, output_file, embedding_file):
             if len(split_tweet) != 0:
                 tweet_embedding = tweet_embedding/len(split_tweet)
             tweet_embedding_matrix[i] = tweet_embedding
+            print('{}/{}'.format(i, total_tweet_number))
 
-    print("Tweet embeddings ok.")
+    print("\t\tTweet embeddings ok.")
     np.save(output_file, tweet_embedding_matrix)
     return tweet_embedding_matrix
 
 
 if __name__ == '__main__':
-    tweet_embed()
+    tweet_embed(paths.TRAIN_UNIQUE, paths.TWEET_EMBEDDINGS, paths.TEST_PREPROCESSED, paths.TEST_EMBEDDINGS,
+                paths.STANFORD_EMBEDDINGS_CUT_VOCAB)

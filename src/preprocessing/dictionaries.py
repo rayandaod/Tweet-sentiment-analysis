@@ -46,6 +46,7 @@ def load_dict_contractions():
         "I've": "I have",
         "kinda": "kind of",
         "let's": "let us",
+        "luv": "love",
         "mayn't": "may not",
         "may've": "may have",
         "mightn't": "might not",
@@ -70,6 +71,7 @@ def load_dict_contractions():
         "somebody's": "somebody is",
         "someone's": "someone is",
         "something's": "something is",
+        "sux": "sucks",
         "that'd": "that would",
         "that'll": "that will",
         "that're": "that are",
@@ -124,9 +126,7 @@ def load_dict_contractions():
         "you'll": "you will",
         "you're": "you are",
         "you've": "you have",
-        "Whatcha": "What are you",
-        "luv": "love",
-        "sux": "sucks"
+        "Whatcha": "What are you"
     }
 
 

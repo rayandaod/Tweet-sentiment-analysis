@@ -1,11 +1,11 @@
 # Rather we want to run our algorithm on the whole dataset or not
-FULL = False
+FULL = True
 
-
-CUT_VOCAB_N = 5
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                WORD EMBEDDINGS
+
+CUT_VOCAB_N = 5
 
 # GLOVE
 GLOVE_K = 150
@@ -25,7 +25,7 @@ ALS_STOP_CRITERION = 1e-4
 # STANFORD
 STANFORD_K = 200  # Possible values: 25, 50, 100, 200
 # ----------------------------------------------------------------------------------------------------------------------
-#                                               PREDICTION
+#                                                   PREDICTION
 
 TEST_SIZE = 0.1
 

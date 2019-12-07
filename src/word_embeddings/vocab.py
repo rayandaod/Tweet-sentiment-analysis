@@ -11,11 +11,11 @@ import src.paths as paths
 import src.params as params
 
 
-def vocab():
+def vocab(train_tweets_path, vocab_path, cut_vocab_path, cut_vocab_n):
     # Build the vocabulary
-    counter = build_vocab(paths.TRAIN_UNIQUE, paths.VOCAB)
+    counter = build_vocab(train_tweets_path, vocab_path)
     # Only keep the tokens that appear more than n times
-    vocabulary = cut_vocab(counter, paths.CUT_VOCAB, n=params.CUT_VOCAB_N)
+    cut_vocab(counter, cut_vocab_path, cut_vocab_n)
     # Pickle the vocabulary
     pickle_vocab()
 
@@ -39,7 +39,7 @@ def build_vocab(in_filename, out_filename, reduce_len=False):
     return counter
 
 
-def cut_vocab(counter: Counter, out_filename, n=5):
+def cut_vocab(counter: Counter, out_filename, n):
     cut_counter = OrderedDict(counter.most_common())
     cut_counter = {x: cut_counter[x] for x in cut_counter if cut_counter[x] >= n}
     outfile = open(out_filename, 'w')
@@ -60,4 +60,4 @@ def pickle_vocab():
 
 
 if __name__ == '__main__':
-    vocab()
+    vocab(paths.TRAIN_UNIQUE, paths.VOCAB, paths.CUT_VOCAB, params.CUT_VOCAB_N)
