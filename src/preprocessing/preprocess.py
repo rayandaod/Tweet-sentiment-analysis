@@ -8,7 +8,7 @@ from wordsegment import load, segment
 from autocorrect import Speller
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_PATH)
+sys.path.append(BASE_PATH+'/..')
 
 import src.preprocessing.dictionaries as dictionaries
 import src.paths as paths

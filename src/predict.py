@@ -5,6 +5,8 @@ import csv
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn import svm
 from sklearn.model_selection import train_test_split
+from keras.models import Sequential
+from keras.layers import Dense
 
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,10 +16,6 @@ import src.paths as paths
 import src.params as params
 import src.preprocessing.preprocess as prep
 import src.tweet_embeddings as t_embed
-
-
-from keras.models import Sequential
-from keras.layers import Dense
 
 
 def predict():
