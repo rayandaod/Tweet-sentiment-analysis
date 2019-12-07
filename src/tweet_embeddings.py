@@ -7,12 +7,12 @@ import numpy as np
 
 
 def tweet_embed():
-    embed(paths.TRAIN_UNIQUE, paths.TWEET_EMBEDDINGS, paths.EMBEDDINGS)
+    embed(paths.TRAIN_UNIQUE, paths.TWEET_EMBEDDINGS, paths.STANFORD_EMBEDDINGS_CUT_VOCAB)
 
 
 def cut_vocab_array():
     array = []
-    for word in open(paths.CUT_VOCAB, 'r'):
+    for word in open(paths.STANFORD_NEW_CUT_VOCAB, 'r'):
         array.append(word[:-1])
     return array
 

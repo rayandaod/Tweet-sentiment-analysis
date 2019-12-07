@@ -8,6 +8,7 @@ import src.params as params
 # Global path parameters
 PATH = Path(BASE_PATH)
 DATA_PATH = PATH / 'data'
+STANFORD_PATH = DATA_PATH / 'glove.twitter.27B'
 PREPROCESSED_PATH = DATA_PATH / 'preprocessed'
 POS_PREPROCESSED_PATH = PREPROCESSED_PATH / 'pos'
 NEG_PREPROCESSED_PATH = PREPROCESSED_PATH / 'neg'
@@ -23,8 +24,10 @@ else:
     NEG = DATA_PATH / 'train_neg.txt'
 
 # Pre-processing
-POS_UNIQUE = POS_PREPROCESSED_PATH / "train_pos_unique.txt"
-POS_FULL_UNIQUE = POS_PREPROCESSED_PATH / "train_pos_full_unique.txt"
+if params.FULL:
+    POS_UNIQUE = POS_PREPROCESSED_PATH / "train_pos_full_unique.txt"
+else:
+    POS_UNIQUE = POS_PREPROCESSED_PATH / "train_pos_unique.txt"
 
 POS_SPACES = POS_PREPROCESSED_PATH / 'train_pos_spaces.txt'
 POS_HASHTAGS = POS_PREPROCESSED_PATH / 'train_pos_hashtags.txt'
@@ -32,8 +35,10 @@ POS_CONTRACT = POS_PREPROCESSED_PATH / 'train_pos_contract.txt'
 POS_SMILEYS = POS_PREPROCESSED_PATH / 'train_pos_smileys.txt'
 POS_HOOKS = POS_PREPROCESSED_PATH / 'train_pos_hooks.txt'
 
-NEG_UNIQUE = NEG_PREPROCESSED_PATH / "train_neg_unique.txt"
-NEG_FULL_UNIQUE = NEG_PREPROCESSED_PATH / "train_neg_full_unique.txt"
+if params.FULL:
+    NEG_UNIQUE = NEG_PREPROCESSED_PATH / "train_neg_full_unique.txt"
+else:
+    NEG_UNIQUE = NEG_PREPROCESSED_PATH / "train_neg_unique.txt"
 
 NEG_SPACES = NEG_PREPROCESSED_PATH / 'train_neg_spaces.txt'
 NEG_HASHTAGS = NEG_PREPROCESSED_PATH / 'train_neg_hashtags.txt'
@@ -47,7 +52,7 @@ NEG_PREPROCESSED = NEG_PREPROCESSED_PATH / 'train_neg_preprocessed.txt'
 
 TRAIN = PREPROCESSED_PATH / 'train.txt'
 TRAIN_UNIQUE = PREPROCESSED_PATH / 'train_unique.txt'
-TRAIN_CONCAT_LABEL = Path(BASE_PATH + "/data/preprocessed/train_label.txt")
+TRAIN_CONCAT_LABEL = PREPROCESSED_PATH / "train_label.txt"
 TRAIN_CONCAT_LABEL_UNIQUE = PREPROCESSED_PATH / "train_label_unique.txt"
 
 POS_LABELS = POS_PREPROCESSED_PATH / 'train_pos_labels.txt'
@@ -57,13 +62,19 @@ NEG_LABELS = NEG_PREPROCESSED_PATH / 'train_neg_labels.txt'
 VOCAB = PREPROCESSED_PATH / 'vocab.txt'
 VOCAB_PICKLE = PREPROCESSED_PATH / 'vocab.pkl'
 CUT_VOCAB = PREPROCESSED_PATH / "cut_vocab.txt"
-CUT_VOCAB_N = 5
 
 # Co-occurence matrix
 COOC_PICKLE = PREPROCESSED_PATH / 'cooc.pkl'
 
 # GLOVE
 EMBEDDINGS = PREPROCESSED_PATH / 'embeddings.npy'
+
+# STANFORD EMBEDDINGS
+STANFORD_NAME = 'glove.twitter.27B.' + str(params.STANFORD_K) + 'd'
+STANFORD_EMBEDDINGS_TXT = STANFORD_PATH / (STANFORD_NAME + '.txt')
+STANFORD_EMBEDDINGS_PICKLE = STANFORD_PATH / (STANFORD_NAME + '.pkl')
+STANFORD_EMBEDDINGS_CUT_VOCAB = STANFORD_PATH / (STANFORD_NAME + '_cut_vocab_.npy')
+STANFORD_NEW_CUT_VOCAB = PREPROCESSED_PATH / "stanford_cut_vocab.txt"
 
 # TWEET EMBEDDINGS
 TWEET_EMBEDDINGS = PREPROCESSED_PATH / 'tweet_embeddings.npy'

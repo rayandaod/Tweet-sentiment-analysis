@@ -8,14 +8,14 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
 
 import src.paths as paths
+import src.params as params
 
 
-# TODO: separate label and tweet after removing duplicates.
 def vocab():
     # Build the vocabulary
     counter = build_vocab(paths.TRAIN_UNIQUE, paths.VOCAB)
     # Only keep the tokens that appear more than n times
-    vocabulary = cut_vocab(counter, paths.CUT_VOCAB, n=paths.CUT_VOCAB_N)
+    vocabulary = cut_vocab(counter, paths.CUT_VOCAB, n=params.CUT_VOCAB_N)
     # Pickle the vocabulary
     pickle_vocab()
 

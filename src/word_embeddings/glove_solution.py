@@ -12,23 +12,17 @@ import src.paths as paths
 import src.params as params
 
 
-def main():
+def glove_GD(cooc_pkl, nmax, K, eta, alpha, epochs, embeddings):
     print("loading cooccurrence matrix")
-    with open(paths.COOC_PICKLE, 'rb') as f:
+    with open(cooc_pkl, 'rb') as f:
         cooc = pickle.load(f)
     print("{} nonzero entries".format(cooc.nnz))
 
-    nmax = params.NMAX
     print("using nmax =", nmax, ", cooc.max() =", cooc.max())
 
     print("initializing embeddings")
-    embedding_dim = params.K
-    xs = np.random.normal(size=(cooc.shape[0], embedding_dim))
-    ys = np.random.normal(size=(cooc.shape[1], embedding_dim))
-
-    eta = params.ETA
-    alpha = params.ALPHA
-    epochs = params.N_EPOCHS
+    xs = np.random.normal(size=(cooc.shape[0], K))
+    ys = np.random.normal(size=(cooc.shape[1], K))
 
     for epoch in range(epochs):
         print("epoch {}".format(epoch))
@@ -39,8 +33,9 @@ def main():
             scale = 2 * eta * fn * (logn - np.dot(x, y))
             xs[ix, :] += scale * y
             ys[jy, :] += scale * x
-    np.save(paths.EMBEDDINGS, xs)
+    np.save(embeddings, xs)
 
 
 if __name__ == '__main__':
-    main()
+    glove_GD(paths.COOC_PICKLE, params.GLOVE_NMAX, params.GLOVE_K, params.GLOVE_ETA, params.GLOVE_ALPHA,
+             params.GLOVE_N_EPOCHS, paths.EMBEDDINGS)

@@ -10,13 +10,13 @@ sys.path.append(BASE_PATH)
 import src.paths as paths
 
 
-def main():
-    with open(paths.VOCAB_PICKLE, 'rb') as f:
+def cooc(vocab_pickle, pos_tweets, neg_tweets, cooc_pickle):
+    with open(vocab_pickle, 'rb') as f:
         vocab = pickle.load(f)
 
     data, row, col = [], [], []
     counter = 1
-    for fn in [paths.POS, paths.NEG]:
+    for fn in [pos_tweets, neg_tweets]:
         with open(fn) as f:
             for line in f:
                 tokens = [vocab.get(t, -1) for t in line.strip().split()]
@@ -33,9 +33,9 @@ def main():
     cooc = coo_matrix((data, (row, col)))
     print("Summing duplicates (this can take a while)")
     cooc.sum_duplicates()
-    with open(paths.COOC_PICKLE, 'wb') as f:
+    with open(cooc_pickle, 'wb') as f:
         pickle.dump(cooc, f, pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == '__main__':
-    main()
+    cooc(paths.VOCAB_PICKLE, paths.POS, paths.NEG, paths.COOC_PICKLE)

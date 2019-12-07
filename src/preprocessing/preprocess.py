@@ -10,7 +10,7 @@ from autocorrect import Speller
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
 
-import src.dictionaries as dictionaries
+import src.preprocessing.dictionaries as dictionaries
 import src.paths as paths
 
 stopwords = set(stopwords.words('english'))
@@ -254,11 +254,13 @@ def add_label(in_filename, out_filename, label_value):
 
 
 def concat_files(in_filenames, out_filename):
+    print('Concatenating positive and negative files...')
     with open(out_filename, 'w') as outfile:
         for filename in in_filenames:
             with open(filename) as infile:
                 for line in infile:
                     outfile.write(line)
+    print('\tConcatenation ok.')
 
 
 if __name__ == '__main__':
