@@ -7,22 +7,37 @@ from sklearn import svm
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense
-
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from scipy import sparse
+import matplotlib.pyplot as plt
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH+'/..')
 
 import src.paths as paths
 import src.params as params
+import src.embeddings.tf_idf as tfidf
 
 
-def predict(test_embeddings_path, tweet_embeddings_path, labels_path):
-    test_embeddings = np.load(test_embeddings_path)
-    tweet_embeddings = np.load(tweet_embeddings_path)
+def predict(test_embeddings_path, tweet_embeddings_path, labels_path, tf_idf = False):
+
     labels = labels_list(labels_path)
+    if tf_idf:
+        tweet_embeddings = tfidf.TF_IDF_prediction(paths.TRAIN_UNIQUE, paths.PREPROCESSED_TFIDF)
+        X_train, X_test, y_train, y_test = train_test_split(tweet_embeddings, labels, test_size=params.TEST_SIZE)
 
-    label_predictions = neural_network(tweet_embeddings, labels, test_embeddings)
+        #X_test = tfidf.TF_IDF_prediction(paths.TEST_PREPROCESSED, paths.TEST_PREPROCESSED_TFIDF)
+        test_embeddings = sparse.csc_matrix(X_test)
+        X_train_sparse = sparse.csc_matrix(X_train)
+
+    else:
+        test_embeddings = np.load(test_embeddings_path)
+        tweet_embeddings = np.load(tweet_embeddings_path)
+
+    # label_predictions = neural_network(tweet_embeddings, labels, test_embeddings)
     # label_predictions = logistic_regression(tweet_embeddings, labels, test_embeddings)
+    # label_predictions = logistic_regression(X_train_sparse, y_train, test_embeddings)
+    label_predictions = neural_network(X_train_sparse, y_train, test_embeddings)
 
     write_predictions_in_csv(label_predictions)
 
@@ -47,14 +62,19 @@ def neural_network(tweet_embeddings, labels, test_embeddings):
     model.add(Dense(256, input_dim=tweet_embeddings.shape[1], activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    X_train, X_test, y_train, y_test = train_test_split(tweet_embeddings, transform_labels(labels),
-                                                        test_size=params.TEST_SIZE)
 
     print("Fitting has started.")
-    model.fit(X_train, y_train, epochs=params.NN_N_EPOCHS, batch_size=params.NN_BATCH_SIZE, verbose=params.NN_VERBOSE)
+    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
+    history = model.fit(tweet_embeddings, transform_labels(labels), epochs=params.NN_N_EPOCHS,
+                        batch_size=params.NN_BATCH_SIZE, verbose=params.NN_VERBOSE, validation_split=params.TEST_SIZE,
+                        callbacks=[es])
+
+    plt.plot(history.history['loss'], label='train')
+    plt.plot(history.history['val_loss'], label='test')
+    plt.legend()
+    plt.show()
+
     print("Predicting has started.")
-    _, accuracy = model.evaluate(X_test, y_test, verbose=params.NN_VERBOSE)
-    print('Accuracy = {}'.format(accuracy * 100))
     return inv_transform_labels(np.round(model.predict(test_embeddings)))
 
 
@@ -92,4 +112,5 @@ def clip_labels(labels):
 
 
 if __name__ == '__main__':
-    predict(paths.TEST_EMBEDDINGS, paths.TWEET_EMBEDDINGS, paths.TRAIN_CONCAT_LABEL_UNIQUE)
+     predict(paths.TEST_EMBEDDINGS, paths.TWEET_EMBEDDINGS, paths.TRAIN_CONCAT_LABEL_UNIQUE, tf_idf= True)
+
