@@ -43,10 +43,12 @@ def cut_vocab(counter: Counter, out_filename, n):
     cut_counter = OrderedDict(counter.most_common())
     cut_counter = {x: cut_counter[x] for x in cut_counter if cut_counter[x] >= n}
     outfile = open(out_filename, 'w')
-    for key in cut_counter.keys():
+    for key in set(cut_counter.keys()):
         outfile.write(key+'\n')
     outfile.close()
     return counter.keys()
+
+
 
 
 def pickle_vocab():

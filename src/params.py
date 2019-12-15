@@ -1,5 +1,5 @@
 # Rather we want to run our algorithm on the whole dataset or not
-FULL = True
+FULL = False
 
 
 # ----------------------------------------------------------------------------------------------------------------------

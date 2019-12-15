@@ -4,6 +4,7 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH+'/..')
 import src.paths as paths
 import numpy as np
+import src.embeddings.tf_idf as tfidf
 
 
 def tweet_embed(train_tweets_path, train_tweets_embeddings_path, test_tweets_path, test_tweets_embeddings_path,
@@ -15,18 +16,12 @@ def tweet_embed(train_tweets_path, train_tweets_embeddings_path, test_tweets_pat
     embed(test_tweets_path, test_tweets_embeddings_path, cut_vocab_embeddings_path)
 
 
-def cut_vocab_array():
-    array = []
-    for word in open(paths.STANFORD_NEW_CUT_VOCAB, 'r'):
-        array.append(word[:-1])
-    return array
-
-
 # Form tweet embedding. For each word in tweet add up the corresponding vector.
-def embed(in_file, output_file, embedding_file):
-    cut_vocab = cut_vocab_array()
+def embed(in_file, output_file, embedding_file, tfidf_matrix_file, tfidf_bool = False):
+    cut_vocab = tfidf.cut_vocab_array()
     embeddings = np.load(embedding_file)
-    total_tweet_number = sum(1 for _ in open(in_file, 'r'))
+    tfidf_matrix = np.load(tfidf_matrix_file)
+    total_tweet_number = tfidf_matrix.shape[0]
     tweet_embedding_matrix = np.zeros((total_tweet_number, embeddings.shape[1]))
     print("\tCreating the tweet embeddings...")
     with open(in_file, 'r') as f:
@@ -35,8 +30,11 @@ def embed(in_file, output_file, embedding_file):
             split_tweet = tweet.split()
             for word in split_tweet:
                 if word in cut_vocab:
-                    index = cut_vocab.index(word)
-                    tweet_embedding += embeddings[index]
+                    index = cut_vocab[word]
+                    if tfidf_bool:
+                        tweet_embedding += tfidf_matrix[i][index] * embeddings[index]
+                    else:
+                        tweet_embedding += embeddings[index]
             if len(split_tweet) != 0:
                 tweet_embedding = tweet_embedding/len(split_tweet)
             tweet_embedding_matrix[i] = tweet_embedding

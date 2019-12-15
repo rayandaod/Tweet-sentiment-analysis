@@ -55,6 +55,7 @@ TRAIN_UNIQUE = PREPROCESSED_PATH / 'train_unique.txt'
 TRAIN_CONCAT_LABEL = PREPROCESSED_PATH / "train_label.txt"
 TRAIN_CONCAT_LABEL_UNIQUE = PREPROCESSED_PATH / "train_label_unique.txt"
 
+
 POS_LABELS = POS_PREPROCESSED_PATH / 'train_pos_labels.txt'
 NEG_LABELS = NEG_PREPROCESSED_PATH / 'train_neg_labels.txt'
 
@@ -68,6 +69,7 @@ COOC_PICKLE = PREPROCESSED_PATH / 'cooc.pkl'
 
 # GLOVE
 EMBEDDINGS = PREPROCESSED_PATH / 'embeddings.npy'
+TFIDF = PREPROCESSED_PATH / 'tfifd_array.npy'
 
 # STANFORD EMBEDDINGS
 STANFORD_NAME = 'glove.twitter.27B.' + str(params.STANFORD_K) + 'd'
@@ -78,6 +80,7 @@ STANFORD_NEW_CUT_VOCAB = PREPROCESSED_PATH / "stanford_cut_vocab.txt"
 
 # TWEET EMBEDDINGS
 TWEET_EMBEDDINGS = PREPROCESSED_PATH / 'tweet_embeddings.npy'
+PREPROCESSED_TFIDF = PREPROCESSED_PATH / 'preTFIDF.txt'
 
 # Prediction
 TEST = DATA_PATH / 'test_data.txt'
@@ -88,5 +91,7 @@ TEST_CONTRACT = TEST_PREPROCESSED_PATH / 'test_pos_contract.txt'
 TEST_SMILEYS = TEST_PREPROCESSED_PATH / 'test_pos_smileys.txt'
 TEST_HOOKS = TEST_PREPROCESSED_PATH / 'test_pos_hooks.txt'
 TEST_PREPROCESSED = TEST_PREPROCESSED_PATH / 'test_preprocessed.txt'
+TEST_PREPROCESSED_TFIDF = TEST_PREPROCESSED_PATH / 'test_preprocessed_tfidf.txt'
+TEST_TFIDF = TEST_PREPROCESSED_PATH / 'test_tfidf_array.npy'
 TEST_EMBEDDINGS = TEST_PREPROCESSED_PATH / 'embeddings.npy'
 LABEL_PREDICTIONS = TEST_PREPROCESSED_PATH / 'predictions.csv'
