@@ -1,3 +1,8 @@
+"""
+This file regroups dictionaries we have used in the preprocessing pipeling of the project.
+"""
+
+
 def load_dict_contractions():
     return {
         "ain't": "is not",

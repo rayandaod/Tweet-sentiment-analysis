@@ -1,3 +1,7 @@
+"""
+This file regroups all the paths needed during the algorithms of our project.
+"""
+
 import os
 import sys
 from pathlib import Path
