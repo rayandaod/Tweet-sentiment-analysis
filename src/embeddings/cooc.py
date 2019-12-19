@@ -11,6 +11,14 @@ import src.paths as paths
 
 
 def cooc(vocab_pickle, pos_tweets, neg_tweets, cooc_pickle):
+    """
+    Compute the cooccurrence matrix
+    :param vocab_pickle: pickle file of the vocabulary used
+    :param pos_tweets: set of positive tweets
+    :param neg_tweets: set of negative tweets
+    :param cooc_pickle: pickle version of cooccurence matrix.
+    :return: cooccurrence matrix
+    """
     with open(vocab_pickle, 'rb') as f:
         vocab = pickle.load(f)
 

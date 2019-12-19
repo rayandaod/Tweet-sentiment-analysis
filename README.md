@@ -1,8 +1,11 @@
 # Tweet-classification
-Project 2 of EPFL Machine Learning course: tweet classification. 
-Authors: Rayan Daod Nathoo, Yann Meier, Kopiga Rasiah.
-Deadline: 19.12.2019.
-This is our project implements the twitter sentiment analysis challenge. The goal of this project is to classify whether a tweet is positve or negative by considering it's text only. We have used python 3.6 to implement this project.
+Project 2 of EPFL Machine Learning course: Twitter sentiment analysis
+
+**Authors**: Rayan Daod Nathoo, Yann Meier, Kopiga Rasiah.
+
+**Deadline**: 19.12.2019
+
+The goal of this sentiment analysis project is to classify whether a tweet is positve or negative by considering its text only. We have used Python 3.6 to implement this project.
 
 
 

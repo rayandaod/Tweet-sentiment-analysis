@@ -66,7 +66,7 @@ def preprocess_TFIDF(tweets_path, preprocessed_file, cut_vocab):
 
 def TF_IDF(tweets_path, cut_vocab, tf_idf_matrix_path):
     """
-     Computes complete process to in order to construct the TF-IDF matrix for a given tweet sets.
+     Compute complete process to in order to construct the TF-IDF matrix for a given tweet sets.
     :param tweets_path: path to the file containing the tweets.
     :param cut_vocab: set of words that are in cut_vocab.
     :param tf_idf_matrix_path: path to the file where the TF-IDF matrix will be stored.
