@@ -377,9 +377,9 @@ def add_label(tweets_path, out_filename, label_value):
 def concat_files(in_filenames, out_filename):
     """
     Concat both positive tweet set and negative tweet set.
-    :param in_filenames:
-    :param out_filename:
-    :return:
+    :param in_filenames: paths to the files that need to be merged
+    :param out_filename: path to the file that merged two tweet sets
+
     """
     print('Concatenating positive and negative files...')
     with open(out_filename, 'w') as outfile:
