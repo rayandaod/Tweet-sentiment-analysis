@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-python preprocessing/preprocess.py && python embeddings/vocab.py && python embeddings/stanford_word_embeddings.py && python embeddings/tweet_embeddings.py && python prediction/predict.py

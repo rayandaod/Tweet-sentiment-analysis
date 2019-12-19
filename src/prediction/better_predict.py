@@ -1,84 +1,40 @@
 import os
 import sys
+
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH+'/..')
 
 from tensorflow import keras
-import keras.backend as K_backend
-import tensorflow as tf
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 import src.paths as paths
 import src.params as params
-import src.prediction.predict as predict
-
-import matplotlib
-import matplotlib.pyplot as plt
-
-K = params.STANFORD_K
-MAX_SEQUENCE_LENGTH = 100
-NO_CLASSES = 2
+import src.prediction.predict_helper as helper
+import src.prediction.AttLayer as AttLayer
 
 
-# Refer to: https://github.com/richliao/textClassifier/issues/28
-class AttLayer(keras.layers.Layer):
-    def __init__(self, attention_dim):
-        self.init = keras.initializers.get('normal')
-        self.supports_masking = True
-        self.attention_dim = attention_dim
-        super(AttLayer, self).__init__()
-
-    def build(self, input_shape):
-        assert len(input_shape) == 3
-        self.W = K_backend.variable(self.init((input_shape[-1], self.attention_dim)))
-        self.b = K_backend.variable(self.init((self.attention_dim,)))
-        self.u = K_backend.variable(self.init((self.attention_dim, 1)))
-        self.trainable_weights = [self.W, self.b, self.u]
-        super(AttLayer, self).build(input_shape)
-
-    def compute_mask(self, inputs, mask=None):
-        return mask
-
-    def call(self, x, mask=None):
-        # size of x :[batch_size, sel_len, attention_dim]
-        # size of u :[batch_size, attention_dim]
-        # uit = tanh(xW+b)
-        uit = K_backend.tanh(K_backend.bias_add(K_backend.dot(x, self.W), self.b))
-        ait = K_backend.dot(uit, self.u)
-        ait = K_backend.squeeze(ait, -1)
-
-        ait = K_backend.exp(ait)
-
-        if mask is not None:
-            # Cast the mask to floatX to avoid float64 upcasting in theano
-            ait *= K_backend.cast(mask, K_backend.floatx())
-        ait /= K_backend.cast(K_backend.sum(ait, axis=1, keepdims=True) + K_backend.epsilon(), K_backend.floatx())
-        ait = K_backend.expand_dims(ait)
-        weighted_input = x * ait
-        output = K_backend.sum(weighted_input, axis=1)
-
-        return output
-
-    def compute_output_shape(self, input_shape):
-        return input_shape[0], input_shape[-1]
-
-
+# Load existing arrays
 labels = np.asarray([int(l[:-1]) for l in open(paths.TRAIN_CONCAT_LABEL_UNIQUE, 'r')])
 tokenized_tweets = [t[:-1] for t in open(paths.TRAIN_UNIQUE, 'r')]
-
 new_cut_vocab = [w[:-1] for w in open(paths.STANFORD_NEW_CUT_VOCAB, 'r')]
-vocab_to_index = dict(zip(new_cut_vocab, range(len(new_cut_vocab))))
 
+# Buid a word-to-index dictionary (0 is reserved for padding)
+word_to_index = dict(zip(new_cut_vocab, np.arange(len(new_cut_vocab)) + 1))
+
+# Build a list of tweet sequences, i.e each tweet is represented by a list of indices of the corresponding words it
+# contains
 all_tweet_seqs = []
 for t in tokenized_tweets:
     tweet_seq = []
     for w in t.split():
-        word_i = vocab_to_index.get(w, None)
+        word_i = word_to_index.get(w, None)
         if word_i is not None:
             tweet_seq.append(word_i)
     all_tweet_seqs.append(tweet_seq)
 
-data = keras.preprocessing.sequence.pad_sequences(all_tweet_seqs, maxlen=MAX_SEQUENCE_LENGTH)
+# Pad those sequences with zeros to get a matrix of shape ()
+data = keras.preprocessing.sequence.pad_sequences(all_tweet_seqs, maxlen=params.MAX_SEQUENCE_LENGTH)
 
 print('Shape of data tensor:', data.shape)
 print('Shape of label tensor:', labels.shape)
@@ -97,279 +53,171 @@ x_test = data[-nb_validation_samples:]
 y_test = labels[-nb_validation_samples:]
 
 embeddings_cut_vocab = np.load(paths.STANFORD_EMBEDDINGS_CUT_VOCAB)
-print('Total %s word vectors in cut_vocab.' % len(embeddings_cut_vocab))
-
-embedding_matrix = np.random.random((len(embeddings_cut_vocab) + 1, K))
-for word, i in vocab_to_index.items():
-    word_i = vocab_to_index.get(word, None)
-    if word_i is not None:
-        embedding_matrix[i] = embeddings_cut_vocab[word_i]
-
-embedding_layer = keras.layers.Embedding(len(embeddings_cut_vocab) + 1,
-                            K,
-                            weights=[embedding_matrix],
-                            input_length=MAX_SEQUENCE_LENGTH,
-                            trainable=True)
-
-sequence_input = keras.layers.Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
+word_to_glove = dict(zip(new_cut_vocab, embeddings_cut_vocab))
 
 
-def plot_history(history):
-    acc = history.history['acc']
-    val_acc = history.history['val_acc']
-    loss = history.history['loss']
-    val_loss = history.history['val_loss']
-    x = range(1, len(acc) + 1)
+def create_pretrained_embedding_matrix(word_to_glove, word_to_index):
+    vocab_len = len(word_to_index) + 1  # adding 1 to account for masking
+    embedding_dim = next(iter(word_to_glove.values())).shape[0]  # works with any glove dimensions (e.g. 50)
 
-    plt.figure(figsize=(12, 5))
-    plt.subplot(1, 2, 1)
-    plt.plot(x, acc, 'b', label='Training acc')
-    plt.plot(x, val_acc, 'r', label='Validation acc')
-    plt.title('Training and validation accuracy')
-    plt.legend()
-    plt.subplot(1, 2, 2)
-    plt.plot(x, loss, 'b', label='Training loss')
-    plt.plot(x, val_loss, 'r', label='Validation loss')
-    plt.title('Training and validation loss')
-    plt.legend()
-    plt.show()
+    emb_matrix = np.zeros((vocab_len, embedding_dim))
+    for word, index in word_to_index.items():
+        emb_matrix[index] = word_to_glove[word]  # create embedding: word index to Glove word embedding
 
-#
-# # Bidirectional LSTM
-# def biLSTM():
-#     embedded_sequences = embedding_layer(sequence_input)
-#     l_lstm = Bidirectional(LSTM(128))(embedded_sequences)
-#     preds = Dense(NO_CLASSES, activation='softmax')(l_lstm)
-#     model = Model(sequence_input, preds)
-#     model.compile(loss='categorical_crossentropy',
-#                   optimizer='adam',
-#                   metrics=['acc'])
-#
-#     print("model fitting - Bidirectional LSTM")
-#     model.summary()
-#
-#     model.fit(x_train, y_train,
-#               nb_epoch=15, batch_size=64)
-#     scores = model.evaluate(x_test, y_test, verbose=0)
-#     print("Accuracy: %.2f%%" % (scores[1] * 100))
-#
-#     output_test = model.predict(x_test)
-#     final_pred = np.argmax(output_test, axis=1)
-#     org_y_label = [np.where(r == 1)[0][0] for r in y_test]
-#     print(org_y_label)
-#     results = confusion_matrix(org_y_label, final_pred)
-#     print(results)
-#     precisions, recall, f1_score, true_sum = metrics.precision_recall_fscore_support(org_y_label, final_pred)
-#     print("Classify Glove Bi-LSTM Precision =", precisions)
-#     print("Classify Glove Bi-LSTM Recall=", recall)
-#     print("Classify Glove Bi-LSTM F1 Score =", f1_score)
-#
-#     pred_indices = np.argmax(output_test, axis=1)
-#     classes = np.array(range(0, 8))
-#     preds = classes[pred_indices]
-#     print('Log loss: {}'.format(log_loss(classes[np.argmax(y_test, axis=1)], output_test)))
-#     print('Accuracy: {}'.format(accuracy_score(classes[np.argmax(y_test, axis=1)], preds)))
-#
-#
-# def biGRUAttlayer():
-#     embedded_sequences = embedding_layer(sequence_input)
-#     l_gru = Bidirectional(GRU(100, return_sequences=True))(embedded_sequences)
-#     l_att = AttLayer(64)(l_gru)
-#     preds = Dense(NO_CLASSES, activation='softmax')(l_att)
-#     model = Model(sequence_input, preds)
-#     model.compile(loss='categorical_crossentropy',
-#                   optimizer='adam',
-#                   metrics=['acc'])
-#
-#     print("model fitting - attention GRU network")
-#     model.summary()
-#     model.fit(x_train, y_train,
-#               epochs=15, batch_size=64)
-#
-#     scores = model.evaluate(x_test, y_test, verbose=0)
-#     print("Accuracy: %.2f%%" % (scores[1]*100))
-#
-#     output_test = model.predict(x_test)
-#     final_pred = np.argmax(output_test, axis=1)
-#     org_y_label = [np.where(r == 1)[0][0] for r in y_test]
-#     print(org_y_label)
-#     results = confusion_matrix(org_y_label, final_pred)
-#     print(results)
-#     precisions, recall, f1_score, true_sum = metrics.precision_recall_fscore_support(org_y_label, final_pred)
-#     print("Classify Glove Bi-LSTM Attention Precision =", precisions)
-#     print("Classify Glove Bi-LSTM Attention Recall=", recall)
-#     print("Classify Glove Bi-LSTM Attention F1 Score =", f1_score)
-#
-#     pred_indices = np.argmax(output_test, axis=1)
-#     classes = np.array(range(0, NO_CLASSES))
-#     preds = classes[pred_indices]
-#     print('Log loss: {}'.format(log_loss(classes[np.argmax(y_test, axis=1)], output_test)))
-#     print('Accuracy: {}'.format(accuracy_score(classes[np.argmax(y_test, axis=1)], preds)))
-#
-#
-# def biLSTMAttlayer():
-#     embedded_sequences = embedding_layer(sequence_input)
-#     l_gru = Bidirectional(LSTM(100, return_sequences=True))(embedded_sequences)
-#     l_att = AttLayer(64)(l_gru)
-#     preds = Dense(NO_CLASSES, activation='softmax')(l_att)
-#     model = Model(sequence_input, preds)
-#     model.compile(loss='categorical_crossentropy',
-#                   optimizer='adam',
-#                   metrics=['acc'])
-#
-#     print("model fitting - attention GRU network")
-#     model.summary()
-#     model.fit(x_train, y_train,
-#               nb_epoch=15, batch_size=64)
-#
-#     scores = model.evaluate(x_test, y_test, verbose=0)
-#     print("Accuracy: %.2f%%" % (scores[1]*100))
-#
-#     output_test = model.predict(x_test)
-#     final_pred = np.argmax(output_test, axis=1)
-#     org_y_label = [np.where(r == 1)[0][0] for r in y_test]
-#     print(org_y_label)
-#     results = confusion_matrix(org_y_label, final_pred)
-#     print(results)
-#     precisions, recall, f1_score, true_sum = metrics.precision_recall_fscore_support(org_y_label, final_pred)
-#     print("Classify Glove Bi-LSTM Attention Precision =", precisions)
-#     print("Classify Glove Bi-LSTM Attention Recall=", recall)
-#     print("Classify Glove Bi-LSTM Attention F1 Score =", f1_score)
-#
-#     pred_indices = np.argmax(output_test, axis=1)
-#     classes = np.array(range(0, 8))
-#     preds = classes[pred_indices]
-#     print('Log loss: {}'.format(log_loss(classes[np.argmax(y_test, axis=1)], output_test)))
-#     print('Accuracy: {}'.format(accuracy_score(classes[np.argmax(y_test, axis=1)], preds)))
-#
-#
-# def biLSTMAttDlayer():
-#     embedded_sequences = embedding_layer(sequence_input)
-#     l_gru = Bidirectional(LSTM(100, return_sequences=True))(embedded_sequences)
-#     l_att = AttLayer(64)(l_gru)
-#     l_att = Dense(256, activation="relu")(l_att)
-#     l_att = Dropout(0.25)(l_att)
-#     preds = Dense(NO_CLASSES, activation='softmax')(l_att)
-#     model = Model(sequence_input, preds)
-#     model.compile(loss='categorical_crossentropy',
-#                   optimizer='adam',
-#                   metrics=['acc'])
-#
-#     print("model fitting - attention GRU network")
-#     model.summary()
-#     model.fit(x_train, y_train,
-#               nb_epoch=15, batch_size=64)
-#
-#     scores = model.evaluate(x_test, y_test, verbose=0)
-#     print("Accuracy: %.2f%%" % (scores[1]*100))
-#
-#     output_test = model.predict(x_test)
-#     final_pred = np.argmax(output_test, axis=1)
-#     org_y_label = [np.where(r == 1)[0][0] for r in y_test]
-#     print(org_y_label)
-#     results = confusion_matrix(org_y_label, final_pred)
-#     print(results)
-#     precisions, recall, f1_score, true_sum = metrics.precision_recall_fscore_support(org_y_label, final_pred)
-#     print("Classify Glove Bi-GRU Attention Precision =", precisions)
-#     print("Classify Glove Bi-GRU Attention Recall=", recall)
-#     print("Classify Glove Bi-GRU Attention F1 Score =", f1_score)
-#
-#     pred_indices = np.argmax(output_test, axis=1)
-#     classes = np.array(range(0, NO_CLASSES))
-#     preds = classes[pred_indices]
-#     print('Log loss: {}'.format(log_loss(classes[np.argmax(y_test, axis=1)], output_test)))
-#     print('Accuracy: {}'.format(accuracy_score(classes[np.argmax(y_test, axis=1)], preds)))
-#
+    return emb_matrix
 
 
-def CNN():
+embedding_matrix = create_pretrained_embedding_matrix(word_to_glove, word_to_index)
+embedding_layer = keras.layers.Embedding(len(embeddings_cut_vocab) + 1, params.STANFORD_K, weights=[embedding_matrix],
+                                         input_length=params.MAX_SEQUENCE_LENGTH,
+                                         trainable=params.NN_TRAIN_EMBEDDING_LAYER)
 
-    model = keras.Sequential()
-    # model.add(layers.Embedding(len(vocab_to_index) + 1, K, weights=[embedding_matrix],
-    #                            input_length=MAX_SEQUENCE_LENGTH, trainable=True))
-    model.add(embedding_layer)
-    model.add(keras.layers.Conv1D(128, 5, activation='relu'))
-    model.add(keras.layers.GlobalMaxPooling1D())
-    model.add(keras.layers.Dense(NO_CLASSES, activation='softmax'))
-    model.compile(loss='categorical_crossentropy',
-                  optimizer='adam',
-                  metrics=['acc'])
+
+def better_predict():
+    # model = build_model(lr=1e-4, lr_d=0, units=128, dr=0.5)
+    model = NN_model()
+    # model = CNN_model_1()
+    # model = CNN_model_2()
+    # model = autoEncodeDecodeLayer_model()
+    # model = biLSTM_model()
+    # model = biLSTMAttDlayer()
+    # model = biLSTMAttDlayer_model()
+    # model = biGRUAttlayer_model()
     model.summary()
 
-    history = model.fit(x_train, y_train,
-                        nb_epoch=15, batch_size=64,
-                        validation_data=(x_test, y_test))
+    es = keras.callbacks.EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=params.NN_PATIENCE)
+    mc = keras.callbacks.ModelCheckpoint(paths.BEST_MODEL, monitor='val_acc', mode='max', verbose=1,
+                                         save_best_only=True)
 
-    loss, accuracy = model.evaluate(x_train, y_train, verbose=False)
+    history = model.fit(x_train, np.asarray(helper.transform_labels(y_train)), epochs=params.NN_N_EPOCHS,
+                        batch_size=params.NN_BATCH_SIZE, shuffle=True, verbose=1)
+    _, accuracy = model.evaluate(x_test, np.asarray(y_test), verbose=params.NN_VERBOSE)
+    oss, accuracy = model.evaluate(x_train, helper.transform_labels(y_train), verbose=False)
     print("Training Accuracy: {:.4f}".format(accuracy))
-    loss, accuracy = model.evaluate(x_test, y_test, verbose=False)
+    loss, accuracy = model.evaluate(x_test, helper.transform_labels(y_test), verbose=False)
     print("Testing Accuracy:  {:.4f}".format(accuracy))
-    plot_history(history)
-
-    output_test = model.predict(x_test)
-    final_pred = np.argmax(output_test, axis=1)
-    org_y_label = [np.where(r == 1)[0][0] for r in y_test]
-    print(org_y_label)
-    results = keras.confusion_matrix(org_y_label, final_pred)
-    print(results)
-    precisions, recall, f1_score, true_sum = keras.metrics.precision_recall_fscore_support(org_y_label, final_pred)
-    print("Classify Glove Bi-LSTM Precision =", precisions)
-    print("Classify Glove Bi-LSTM Recall=", recall)
-    print("Classify Glove Bi-LSTM F1 Score =", f1_score)
-
-    pred_indices = np.argmax(output_test, axis=1)
-    classes = np.array(range(0, 8))
-    preds = classes[pred_indices]
-    print('Log loss: {}'.format(keras.log_loss(classes[np.argmax(y_test, axis=1)], output_test)))
-    print('Accuracy: {}'.format(keras.accuracy_score(classes[np.argmax(y_test, axis=1)], preds)))
+    helper.plot_history(history)
 
 
-# def autoEncodeDecodeLayer():
-#     input_dim = x_train.shape[1]
-#
-#     input_layer = Input(shape=(input_dim,))
-#     encoder = Dense(32, activation="relu",
-#                     activity_regularizer=regularizers.l1(10e-5))(input_layer)
-#     decoder = Dense(64, activation="relu",  activity_regularizer=regularizers.l1(10e-5))(encoder)
-#     decoder = Dense(128, activation='relu',  activity_regularizer=regularizers.l1(10e-5))(decoder)
-#     decoder = Dense(256, activation='relu',  activity_regularizer=regularizers.l1(10e-5))(decoder)
-#     decoder = Dense(NO_CLASSES, activation='softmax')(decoder)
-#     autoencoder = Model(inputs=input_layer, outputs=decoder)
-#     autoencoder.summary()
-#
-#     nb_epoch = 15
-#     batch_size = 128
-#     autoencoder.compile(optimizer='adam',
-#                         loss='categorical_crossentropy',
-#                         metrics=['acc'])
-#
-#     model = autoencoder.fit(x_train, y_train, epochs=nb_epoch, batch_size=batch_size)
-#
-#     scores = autoencoder.evaluate(x_test, y_test, verbose=0)
-#     print("Accuracy: %.2f%%" % (scores[1] * 100))
-#
-#     output_test = autoencoder.predict(x_test)
-#     final_pred = np.argmax(output_test, axis=1)
-#     org_y_label = [np.where(r == 1)[0][0] for r in y_test]
-#     print(org_y_label)
-#     results = confusion_matrix(org_y_label, final_pred)
-#     print(results)
-#     precisions, recall, f1_score, true_sum = metrics.precision_recall_fscore_support(org_y_label, final_pred)
-#     print("Classify AutoEncoder Precision =", precisions)
-#     print("Classify AutoEncoder Recall=", recall)
-#     print("Classify AutoEncoder F1 Score =", f1_score)
-#
-#     pred_indices = np.argmax(output_test, axis=1)
-#     classes = np.array(range(0, 8))
-#     preds = classes[pred_indices]
-#     print('Log loss: {}'.format(log_loss(classes[np.argmax(y_test, axis=1)], output_test)))
-#     print('Accuracy: {}'.format(accuracy_score(classes[np.argmax(y_test, axis=1)], preds)))
+def NN_model():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Flatten())
+    model.add(keras.layers.Dense(256, activation='relu'))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+
+def biLSTM_model():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Bidirectional(keras.layers.LSTM(128)))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+
+def biGRUAttlayer_model():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Bidirectional(keras.layers.GRU(100, return_sequences=True)))
+    model.add(AttLayer(64))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
+
+
+def biLSTMAttlayer():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Bidirectional(keras.layers.LSTM(100, return_sequences=True)))
+    model.add(AttLayer(64))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+
+def biLSTMAttDlayer_model():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Bidirectional(keras.layers.LSTM(100, return_sequences=True)))
+    model.add(AttLayer(64))
+    model.add(keras.layers.Dense(256, activation="relu"))
+    model.add(keras.layers.Dropout(0.25))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+
+def CNN_model_1():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Conv1D(128, 2, activation='relu'))
+    model.add(keras.layers.GlobalMaxPooling1D())
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+
+def CNN_model_2():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Conv1D(128, 5, activation='relu'))
+    model.add(keras.layers.MaxPooling1D(5))
+    model.add(keras.layers.Conv1D(128, 5, activation='relu'))
+    model.add(keras.layers.MaxPooling1D(5))
+    model.add(keras.layers.Flatten())
+    model.add(keras.layers.Dense(128, activation='relu'))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+
+def autoEncodeDecodeLayer_model():
+    model = keras.Sequential()
+    model.add(embedding_layer)
+    model.add(keras.layers.Dense(32, activation="relu", activity_regularizer=keras.regularizers.l1(10e-5)))
+    model.add(keras.layers.Dense(64, activation="relu",  activity_regularizer=keras.regularizers.l1(10e-5)))
+    model.add(keras.layers.Dense(128, activation='relu',  activity_regularizer=keras.regularizers.l1(10e-5)))
+    model.add(keras.layers.Dense(256, activation='relu',  activity_regularizer=keras.regularizers.l1(10e-5)))
+    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+
+def build_model(lr=0.0, lr_d=0.0, units=0, dr=0.0):
+    input = embedding_layer
+    x1 = keras.layers.SpatialDropout1D(dr)(input)
+
+    x_gru = keras.layers.Bidirectional(keras.layers.CuDNNGRU(units, return_sequences=True))(x1)
+    x1 = keras.layers.Conv1D(32, kernel_size=3, padding='valid', kernel_initializer='he_uniform')(x_gru)
+    avg_pool1_gru = keras.layers.GlobalAveragePooling1D()(x1)
+    max_pool1_gru = keras.layers.GlobalMaxPooling1D()(x1)
+
+    x3 = keras.layers.Conv1D(32, kernel_size=2, padding='valid', kernel_initializer='he_uniform')(x_gru)
+    avg_pool3_gru = keras.layers.GlobalAveragePooling1D()(x3)
+    max_pool3_gru = keras.layers.GlobalMaxPooling1D()(x3)
+
+    x_lstm = keras.layers.Bidirectional(keras.layers.CuDNNLSTM(units, return_sequences=True))(x1)
+    x1 = keras.layers.Conv1D(32, kernel_size=3, padding='valid', kernel_initializer='he_uniform')(x_lstm)
+    avg_pool1_lstm = keras.layers.GlobalAveragePooling1D()(x1)
+    max_pool1_lstm = keras.layers.GlobalMaxPooling1D()(x1)
+
+    x3 = keras.layers.Conv1D(32, kernel_size=2, padding='valid', kernel_initializer='he_uniform')(x_lstm)
+    avg_pool3_lstm = keras.layers.GlobalAveragePooling1D()(x3)
+    max_pool3_lstm = keras.layers.GlobalMaxPooling1D()(x3)
+
+    x = keras.layers.concatenate([avg_pool1_gru, max_pool1_gru, avg_pool3_gru, max_pool3_gru, avg_pool1_lstm,
+                                  max_pool1_lstm, avg_pool3_lstm, max_pool3_lstm])
+    x = keras.layers.BatchNormalization()(x)
+    x = keras.layers.Dropout(0.2)(keras.layers.Dense(128, activation='relu')(x))
+    x = keras.layers.BatchNormalization()(x)
+    x = keras.layers.Dropout(0.2)(keras.layers.Dense(100, activation='relu')(x))
+    x = keras.layers.Dense(5, activation="sigmoid")(x)
+    model = keras.models.Model(inputs=input, outputs=x)
+    model.compile(loss="binary_crossentropy", optimizer=keras.optimizers.Adam(lr=lr, decay=lr_d), metrics=["acc"])
+    return model
 
 
 if __name__ == '__main__':
-    # autoEncodeDecodeLayer()
-    # biLSTMAttDlayer()
-    # biLSTM()
-    # biGRUAttlayer()
-    # biLSTMAttlayer()
-    CNN()
+    better_predict()

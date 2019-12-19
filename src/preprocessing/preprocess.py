@@ -1,7 +1,6 @@
 import re
 import os
 import sys
-import numpy as np
 from textblob import TextBlob
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -43,7 +42,7 @@ def preprocess_pos():
     in_filename = hashtags(in_filename, paths.POS_HASHTAGS)
     in_filename = contractions(in_filename, paths.POS_CONTRACT)
     in_filename = smileys(in_filename, paths.POS_SMILEYS)
-    in_filename = remove_hooks(in_filename, paths.POS_PREPROCESSED)
+    in_filename = numbers(in_filename, paths.POS_PREPROCESSED)
     in_filename = add_label(in_filename, paths.POS_LABELS, POS_LABEL)
 
 
@@ -54,7 +53,7 @@ def preprocess_neg():
     in_filename = hashtags(in_filename, paths.NEG_HASHTAGS)
     in_filename = contractions(in_filename, paths.NEG_CONTRACT)
     in_filename = smileys(in_filename, paths.NEG_SMILEYS)
-    in_filename = remove_hooks(in_filename, paths.NEG_PREPROCESSED)
+    in_filename = numbers(in_filename, paths.NEG_PREPROCESSED)
     in_filename = add_label(in_filename, paths.NEG_LABELS, NEG_LABEL)
 
 
@@ -64,14 +63,14 @@ def preprocess_test():
     in_filename = hashtags(in_filename, paths.TEST_HASHTAGS)
     in_filename = contractions(in_filename, paths.TEST_CONTRACT)
     in_filename = smileys(in_filename, paths.TEST_SMILEYS)
-    in_filename = remove_hooks(in_filename, paths.TEST_PREPROCESSED)
+    in_filename = numbers(in_filename, paths.TEST_PREPROCESSED)
 
 
 def remove_indices_test():
     test_file = open(paths.TEST, 'r')
     test_file_without_i = open(paths.TEST_WITHOUT_INDICES, 'w')
     tweets_with_indices = [tweet for tweet in test_file]
-    for i in np.arange(len(tweets_with_indices)):
+    for i in range(len(tweets_with_indices)):
         size_to_remove = len(str(i+1))+1
         test_file_without_i.write(tweets_with_indices[i][size_to_remove:])
     test_file.close()

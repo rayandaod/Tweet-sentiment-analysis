@@ -12,8 +12,8 @@ from scipy import sparse
 def main_tf_idf(in_file, preprocessed_file, tf_idf_path, in_test_file, preprocessed_test_file, test_tfidf_path):
     print("Train set: ")
     TF_IDF_prediction(in_file, preprocessed_file, tf_idf_path)
-    #print("Test set: ")
-    #TF_IDF_prediction(in_test_file, preprocessed_test_file)
+    # print("Test set: ")
+    # TF_IDF_prediction(in_test_file, preprocessed_test_file)
 
 
 # Compute TF_IDF matrix
@@ -21,7 +21,7 @@ def TF_IDF_prediction(in_file, preprocessed_file,tf_idf_path):
     cut_vocab = cut_vocab_array()
     preprocess_TFIDF(in_file, preprocessed_file, cut_vocab)
     print("preprocess done")
-    TF_IDF(preprocessed_file, cut_vocab,tf_idf_path)
+    TF_IDF(preprocessed_file, cut_vocab, tf_idf_path)
     print("tf_idf array ready")
 
 
@@ -48,7 +48,6 @@ def TF_IDF(in_file, cut_vocab, tf_idf_matrix_path):
     idf_dic = compute_IDF(in_file_size, idf_pre_dic)
     TF_IDF_array = compute_TFIDF(in_file, cut_vocab, in_file_size, idf_dic)
     np.save(tf_idf_matrix_path, sparse.csc_matrix(TF_IDF_array))
-
 
 
 def compute_IDF_dict(in_file, cut_vocab):
@@ -80,7 +79,7 @@ def compute_TF(tweet):
 def compute_TFIDF(in_file, cut_vocab, tweets_size, idf_dic):
     cut_vocab_size = len(cut_vocab.keys())
     TF_IDF_array = np.zeros((tweets_size, cut_vocab_size))
-    with open(in_file,'r') as f:
+    with open(in_file, 'r') as f:
         for i, tweet in enumerate(f, 0):
             tf_dic = compute_TF(tweet)
             tweet_len = len(tweet.split())
@@ -97,4 +96,5 @@ def cut_vocab_array():
 
 
 if __name__ == '__main__':
-     main_tf_idf(paths.TRAIN_UNIQUE, paths.PREPROCESSED_TFIDF, paths.TFIDF, paths.TEST_PREPROCESSED, paths.TEST_PREPROCESSED_TFIDF, paths.TEST_TFIDF)
+     main_tf_idf(paths.TRAIN_UNIQUE, paths.PREPROCESSED_TFIDF, paths.TFIDF, paths.TEST_PREPROCESSED,
+                 paths.TEST_PREPROCESSED_TFIDF, paths.TEST_TFIDF)
