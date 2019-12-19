@@ -1,4 +1,5 @@
-# Tweet-classification
+# Twitter sentiment analysis
+
 Project 2 of EPFL Machine Learning course: Twitter sentiment analysis
 
 **Authors**: Rayan Daod Nathoo, Yann Meier, Kopiga Rasiah.
@@ -8,14 +9,11 @@ Project 2 of EPFL Machine Learning course: Twitter sentiment analysis
 The goal of this sentiment analysis project is to classify whether a tweet is positve or negative by considering its text only. We have used Python 3.6 to implement this project.
 
 
-
 ## Getting started
 
-### Clone the repository.
+To start, please clone this repository.
 
-
-### Required packages
-In order to run our project, you will need to install the following modules: 
+In order to run our project, you will need to install the following modules:
 
 `Numpy`
 
@@ -35,8 +33,9 @@ Please use usual command as `pip install [module]` by changing [module] to the c
 ### Folder structures.
 
 Create a folder `data`in the repository at the root of the project. Inside `data`, create the folders `preprocessed` and `glove.twitter.27B`
-In `preprocessed`, create the folders `neg`, `pos`, `test`.
-Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip in `glove.twitter.27B`. At the end, you should have the following folder structure.
+In `preprocessed`, create the empty folders `neg`, `pos`, `test`.
+
+Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place it inside the folder `glove.twitter.27B`. At the end, you should obtain the following folder structure:
 
 
 #### Folder structure
@@ -45,7 +44,7 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip in `glove.t
     ├── Tweet-classification                     
         ├── data
             ├── glove.twitter.27B 
-                ├── glove.twitter.27B.200d.txt
+                ├── glove.twitter.27B.200d.txt      The file regrouping all the pre-trained embedding vectors we used for our                                                    algorithm.
             ├── preprocessed       
             ├── pos
             ├── neg
@@ -53,45 +52,40 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip in `glove.t
         ├── src
             ├── embeddings
                 ├── __init__.py
-                ├── als.py
-                ├── cooc.py
-                ├── glove_solution.py
-                ├── stanford_word_embedding.py
-                ├── tf_idf.py
-                ├── tweet_embeddings.py
-                ├── vocab.py
+                ├── cooc.py                         Generates a coocurrence matrix from the words of our vocabulary.
+                ├── glove_GD.py                     Implements a Gradient Descent version of Glove.
+                ├── stanford_word_embedding.py      Creates a vocabulary based on Twitter pre-trained Stanford Glove vectors.
+                ├── tf_idf.py                       Regroups some functions we used for an alternative method.
+                ├── tweet_embeddings.py             Creates tweet embeddings from the word embeddings.
+                ├── vocab.py                        Takes care about creating a vocabulary from our corpus.
             ├── prediction
                 ├── __init__.py
-                ├── better_predict.py
-                ├── predict.py
+                ├── better_predict.py               Regroups all the implementations we tried for the training part.
+                ├── predict.py                      Stores the two training algorithms we used in the end.
             ├── preprocessing
                 ├── __init__.py
-                ├── dictionaries.py
-                ├── preprocess.py
+                ├── dictionaries.py                 Regroups the dictionaries we used during the preprocessing part.
+                ├── preprocess.py                   Regroups all the preprocessing algorithms we implemented.
            ├── __init__.py
-           ├── params.py                            : Control tower, see below for more details.
-           ├── paths.py 
-           ├── run.sh
-        ├── Useful references
+           ├── params.py                            Control tower, see below for more details.
+           ├── paths.py                             Regroups all the file paths required for our algorithm.
+           ├── run.py                               To be run after the above instructions to execute our pipeline.
         ├── .gitignore
-        ├── project2_description.pdf
-        ├── Project_Guidlines.pdf
 
 --------
 
 #### Technical Overview
 
-1. Preprocessing. 
-- remove tweets that are in both positive tweet file and negativ tweet file
-- process spaces
-- process contractions in english
-- segment expressions coming with hashtags.
+1. Preprocessing:
+- Remove the tweets that are in both positive and negative tweet files
+- Process the spaces in the training set of tweets
+- Expand the english contractions contained in the training set
+- Separate words from hashtags
 
-2. Embeddings.
-- The word embeddings are given by https://nlp.stanford.edu/projects/glove/. 
+2. Embeddings:
+- The word embeddings were taken in https://nlp.stanford.edu/projects/glove/.
+- The tweet embeddings are the sum of the word embeddings of the words it contains.
 
-3. Predict.
-- We used different models to predict. The best one was CNN with tweet embeddings and we got the following 
-
-  
+3. Prediction:
+- We used different models to predict. The best one was a Neural Network with one hidden layer of 256 nodes (c.f report for more informations).
 
