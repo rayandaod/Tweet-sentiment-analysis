@@ -10,7 +10,11 @@ import numpy as np
 import src.paths as paths
 import src.params as params
 import src.prediction.predict_helper as helper
-import src.prediction.AttLayer as AttLayer
+
+
+"""
+This file regroups all the algorithms we tried to implement but did not succeed or did not exceed our best accuracy.
+"""
 
 
 # Load existing arrays

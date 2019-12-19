@@ -3,10 +3,9 @@ import sys
 import numpy as np
 
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 
 import tensorflow.keras as keras
-from tensorflow_core.python.training import learning_rate_decay
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH+'/..')
@@ -55,12 +54,16 @@ def logistic_regression(tweet_embeddings, labels, test_embeddings):
 
 def neural_network(tweet_embeddings, labels, test_embeddings):
     """
-    Train a simple neural network
+    Train a neural network taking tweet_embeddings as input, with one hidden layer of 256 nodes.
+    The used activation functions are reLu and sigmoid.
+    The loss applied in the end is a binary crossentropy, and we chose Adam with default parameters as an optimizer.
+    We are also using an Early stopping variable that allow the neural network to stop running as soon as the validation
+    loss starts increasing with a patience of 5 epochs before the complete stop.
 
-    :param tweet_embeddings:
-    :param labels:
-    :param test_embeddings:
-    :return:
+    :param tweet_embeddings: the embedding vectors of the train set
+    :param labels: the labels of the tweets of the train set
+    :param test_embeddings: the labels prediction for the tweets in the test set
+    :return: the prediction for the test set in case the SUBMISSION variable in params is set to True
     """
 
     if params.SUBMISSION:
@@ -72,6 +75,7 @@ def neural_network(tweet_embeddings, labels, test_embeddings):
         model.fit(tweet_embeddings, np.asarray(helper.transform_labels(labels)), epochs=params.NN_N_EPOCHS,
                   batch_size=params.NN_BATCH_SIZE, verbose=params.NN_VERBOSE)
         return helper.inv_transform_labels(np.round(model.predict(test_embeddings)))
+
     else:
         for train_index, test_index in StratifiedKFold(params.CV_FOLDS, shuffle=True).split(tweet_embeddings, labels):
             X_train, X_test = [tweet_embeddings[x] for x in train_index], [tweet_embeddings[x] for x in test_index]

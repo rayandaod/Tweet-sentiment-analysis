@@ -1,3 +1,8 @@
+"""
+This file controls several parameters necessary during our pipeline.
+"""
+
+
 # Rather we want to run our algorithm on the whole dataset or not
 FULL = True
 SUBMISSION = True

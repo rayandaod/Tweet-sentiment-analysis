@@ -9,9 +9,13 @@ import src.embeddings.vocab as vocab
 import src.embeddings.stanford_word_embeddings as stanford
 import src.embeddings.tweet_embeddings as tweet_embeddings
 import src.prediction.predict as predict
-import src.prediction.better_predict as better_predict
 import src.paths as paths
 import src.params as params
+
+"""
+This file can be run to execute our full algorithm.
+Make sure to have read all the instructions on the README before continuing.
+"""
 
 if __name__ == '__main__':
     # Clear the outputs of eventual previous running
@@ -36,5 +40,5 @@ if __name__ == '__main__':
                                  paths.TEST_EMBEDDINGS, paths.STANFORD_EMBEDDINGS_CUT_VOCAB)
 
     # Train the model and classify the test set according to the model we found
-    # predict.predict(paths.TEST_EMBEDDINGS, paths.TWEET_EMBEDDINGS, paths.TRAIN_CONCAT_LABEL_UNIQUE, paths.LABEL_PREDICTIONS)
-    better_predict.better_predict()
+    predict.predict(paths.TEST_EMBEDDINGS, paths.TWEET_EMBEDDINGS, paths.TRAIN_CONCAT_LABEL_UNIQUE,
+                    paths.LABEL_PREDICTIONS)
