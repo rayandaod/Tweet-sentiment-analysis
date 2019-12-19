@@ -85,16 +85,18 @@ def better_predict():
     # model = biGRUAttlayer_model()
     model.summary()
 
-    es = keras.callbacks.EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=params.NN_PATIENCE)
-    mc = keras.callbacks.ModelCheckpoint(paths.BEST_MODEL, monitor='val_acc', mode='max', verbose=1,
-                                         save_best_only=True)
+    # es = keras.callbacks.EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=params.NN_PATIENCE)
+    # mc = keras.callbacks.ModelCheckpoint(paths.BEST_MODEL, monitor='val_acc', mode='max', verbose=1,
+    #                                      save_best_only=True)
 
     history = model.fit(x_train, np.asarray(helper.transform_labels(y_train)), epochs=params.NN_N_EPOCHS,
-                        batch_size=params.NN_BATCH_SIZE, shuffle=True, verbose=1)
-    _, accuracy = model.evaluate(x_test, np.asarray(y_test), verbose=params.NN_VERBOSE)
-    oss, accuracy = model.evaluate(x_train, helper.transform_labels(y_train), verbose=False)
+                        batch_size=params.NN_BATCH_SIZE, verbose=1)
+
+    _, accuracy = model.evaluate(x_test, np.asarray(helper.transform_labels(y_test)), verbose=params.NN_VERBOSE)
+
+    loss, accuracy = model.evaluate(x_train, np.asarray(helper.transform_labels(y_train)), verbose=False)
     print("Training Accuracy: {:.4f}".format(accuracy))
-    loss, accuracy = model.evaluate(x_test, helper.transform_labels(y_test), verbose=False)
+    loss, accuracy = model.evaluate(x_test, np.asarray(helper.transform_labels(y_test)), verbose=False)
     print("Testing Accuracy:  {:.4f}".format(accuracy))
     helper.plot_history(history)
 
@@ -105,7 +107,10 @@ def NN_model():
     model.add(keras.layers.Flatten())
     model.add(keras.layers.Dense(256, activation='relu'))
     model.add(keras.layers.Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    model.compile(loss='binary_crossentropy', optimizer=keras.optimizers.Adam(learning_rate=0.0005,
+                                                                              beta_1=0.45,
+                                                                              beta_2=0.445,
+                                                                              amsgrad=False), metrics=['acc'])
     return model
 
 

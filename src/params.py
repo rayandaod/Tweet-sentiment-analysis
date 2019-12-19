@@ -1,6 +1,7 @@
 # Rather we want to run our algorithm on the whole dataset or not
 FULL = False
 
+SUBMISSION = False
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                WORD EMBEDDINGS
@@ -25,9 +26,9 @@ TEST_SIZE = 0.1
 CV_FOLDS = 5
 
 # NEURAL-NETWORK
-NN_N_EPOCHS = 5
+NN_N_EPOCHS = 20
 NN_BATCH_SIZE = 100
-NN_PATIENCE = 2
+NN_PATIENCE = 5
 NN_VERBOSE = True
 
 NN_TRAIN_EMBEDDING_LAYER = True
