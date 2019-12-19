@@ -105,7 +105,7 @@ def remove_duplicate_tweets(tweets_path, out_file_path):
     print('\tRemoving duplicate tweets...')
     lines_seen = set()
     outfile = open(out_file_path, "w+")
-    for line in open(out_file_path, "r"):
+    for line in open(tweets_path, "r"):
         if line not in lines_seen:
             outfile.write(line)
             lines_seen.add(line)
