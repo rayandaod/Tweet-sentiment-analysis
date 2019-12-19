@@ -61,7 +61,8 @@ def embed(train_tweets_path, train_tweets_embeddings_path, cut_vocab_embeddings_
             if len(split_tweet) != 0:
                 tweet_embedding = tweet_embedding/len(split_tweet)
             tweet_embedding_matrix[i] = tweet_embedding
-            print('{}/{}'.format(i, total_tweet_number))
+            if i % 10000 == 0:
+                print('{}/{}'.format(i, total_tweet_number))
 
     print("\t\tTweet embeddings ok.")
     np.save(train_tweets_embeddings_path, tweet_embedding_matrix)
