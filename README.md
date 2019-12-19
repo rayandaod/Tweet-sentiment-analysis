@@ -32,7 +32,11 @@ Please use usual command as `pip install [module]` by changing [module] to the c
 
 ### Folder structures.
 
-Create a folder `data`in the repository at the root of the project. Inside `data`, create the folders `preprocessed` and `glove.twitter.27B`
+Create a folder `data`in the repository at the root of the project. 
+Inside `data`, create the folders `preprocessed` and `glove.twitter.27B`.
+Again inside `data`, place the training and test sets retrieved from AICrowd.
+
+
 In `preprocessed`, create the empty folders `neg`, `pos`, `test`.
 
 Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place it inside the folder `glove.twitter.27B`. At the end, you should obtain the following folder structure:
