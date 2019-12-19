@@ -2,7 +2,7 @@
 Project 2 of EPFL Machine Learning course: tweet classification. 
 Authors: Rayan Daod Nathoo, Yann Meier, Kopiga Rasiah.
 Deadline: 19.12.2019.
-
+This is our project implements the twitter sentiment analysis challenge. The goal of this project is to classify whether a tweet is positve or negative by considering it's text only. We have used python 3.6 to implement this project.
 
 
 
@@ -85,7 +85,7 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip in `glove.t
 - segment expressions coming with hashtags.
 
 2. Embeddings.
-- The word embeddings are genereted from `glove_solution`.py. 
+- The word embeddings are given by https://nlp.stanford.edu/projects/glove/. 
 
 3. Predict.
 - We used different models to predict. The best one was CNN with tweet embeddings and we got the following 
