@@ -33,7 +33,7 @@ def cooc(vocab_pickle, pos_tweets, neg_tweets, cooc_pickle):
     cooc = coo_matrix((data, (row, col)))
     print("Summing duplicates (this can take a while)")
     cooc.sum_duplicates()
-    with open(cooc_pickle, 'wb') as f:
+    with open(cooc_pickle, 'wb+') as f:
         pickle.dump(cooc, f, pickle.HIGHEST_PROTOCOL)
 
 

@@ -26,7 +26,7 @@ def stanford_to_pkl(stanford_txt_filename, stanford_pkl_filename):
         word_vector_dict[word] = vector
     input_file.close()
 
-    with open(stanford_pkl_filename, 'wb') as f:
+    with open(stanford_pkl_filename, 'wb+') as f:
         # Pickle the 'data' dictionary using the highest protocol available.
         pickle.dump(word_vector_dict, f, pickle.HIGHEST_PROTOCOL)
     print('\tParsing ok.')
@@ -49,7 +49,7 @@ def stanford_only_cut_vocab(stanford_pkl_path, stanford_cut_vocab_npy_path, cut_
     print('Retrieving word embeddings from Stanford...')
     stanford_cut_vocab_list = []
     cut_vocab_file = open(cut_vocab_path, 'r')
-    new_cut_vocab_file = open(new_cut_vocab_path, 'w')
+    new_cut_vocab_file = open(new_cut_vocab_path, 'w+')
     with open(stanford_pkl_path, 'rb') as f:
         stanford_embeddings = pickle.load(f)
         stanford_bin = set()
@@ -70,6 +70,6 @@ def stanford_only_cut_vocab(stanford_pkl_path, stanford_cut_vocab_npy_path, cut_
 
 
 if __name__ == '__main__':
-    # stanford_to_pkl(paths.STANFORD_EMBEDDINGS_TXT, paths.STANFORD_EMBEDDINGS_PICKLE)
+    stanford_to_pkl(paths.STANFORD_EMBEDDINGS_TXT, paths.STANFORD_EMBEDDINGS_PICKLE)
     stanford_only_cut_vocab(paths.STANFORD_EMBEDDINGS_PICKLE, paths.STANFORD_EMBEDDINGS_CUT_VOCAB, paths.CUT_VOCAB,
                             paths.STANFORD_NEW_CUT_VOCAB)

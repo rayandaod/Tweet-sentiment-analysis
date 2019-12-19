@@ -9,7 +9,6 @@ import numpy as np
 from scipy import sparse
 
 
-
 def main_tf_idf(train_tweets_path, preprocessed_file, tf_idf_path, test_tweets_path, test_preprocessed_file, test_tfidf_path):
     """
     Contruct TF-IDF matrices for the training and test data.
@@ -50,7 +49,7 @@ def preprocess_TFIDF(tweets_path, preprocessed_file, cut_vocab):
     :param cut_vocab: set of words that are in cut_vocab.
     """
 
-    outfile = open(preprocessed_file, "w")
+    outfile = open(preprocessed_file, "w+")
     with open(tweets_path, 'r') as f:
         for line in f:
             line = line[:-1]

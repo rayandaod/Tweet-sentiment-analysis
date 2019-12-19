@@ -48,7 +48,7 @@ def build_vocab(train_tweets_path, vocab_path, reduce_len=False):
     counter = Counter(tokens)
 
     # Write each token in the output file
-    output_file = open(vocab_path, 'w')
+    output_file = open(vocab_path, 'w+')
     for key, value in counter.items():
         output_file.write(str(value) + ',' + key + '\n')
     output_file.close()
@@ -69,7 +69,7 @@ def cut_vocab(counter: Counter, cut_vocab_path, cut_vocab_n):
     print('Keeping only the words appearing {} times...'.format(cut_vocab_n))
     cut_counter = OrderedDict(counter.most_common())
     cut_counter = {x: cut_counter[x] for x in cut_counter if cut_counter[x] >= cut_vocab_n}
-    outfile = open(cut_vocab_path, 'w')
+    outfile = open(cut_vocab_path, 'w+')
     for key in cut_counter.keys():
         outfile.write(key+'\n')
     outfile.close()
@@ -89,7 +89,7 @@ def pickle_vocab():
         for idx, line in enumerate(f):
             vocab[line.strip()] = idx
 
-    with open(paths.VOCAB_PICKLE, 'wb') as f:
+    with open(paths.VOCAB_PICKLE, 'wb+') as f:
         pickle.dump(vocab, f, pickle.HIGHEST_PROTOCOL)
     print('\tcut_vocab pickled.')
 

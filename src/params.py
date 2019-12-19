@@ -1,7 +1,6 @@
 # Rather we want to run our algorithm on the whole dataset or not
-FULL = False
-
-SUBMISSION = False
+FULL = True
+SUBMISSION = True
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                WORD EMBEDDINGS
@@ -20,9 +19,8 @@ STANFORD_K = 200  # Possible values: 25, 50, 100, 200
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                   PREDICTION
 
+# CROSS VALIDATION
 TEST_SIZE = 0.1
-
-# LOGISTIC REGRESSION
 CV_FOLDS = 5
 
 # NEURAL-NETWORK
@@ -32,4 +30,4 @@ NN_PATIENCE = 5
 NN_VERBOSE = True
 
 NN_TRAIN_EMBEDDING_LAYER = True
-MAX_SEQUENCE_LENGTH = 100
+MAX_SEQUENCE_LENGTH = 30

@@ -68,7 +68,7 @@ def preprocess_test():
 
 def remove_indices_test():
     test_file = open(paths.TEST, 'r')
-    test_file_without_i = open(paths.TEST_WITHOUT_INDICES, 'w')
+    test_file_without_i = open(paths.TEST_WITHOUT_INDICES, 'w+')
     tweets_with_indices = [tweet for tweet in test_file]
     for i in range(len(tweets_with_indices)):
         size_to_remove = len(str(i+1))+1
@@ -80,7 +80,7 @@ def remove_indices_test():
 def remove_duplicate_tweets(in_filename, out_filename):
     print('\tRemoving duplicate tweets...')
     lines_seen = set()
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for line in open(in_filename, "r"):
         if line not in lines_seen:
             outfile.write(line)
@@ -107,8 +107,8 @@ def remove_both_duplicate_tweets(in_filename, out_filename, out_label_filename):
             line_to_occ[tweet] = (1, label)
 
     # Write the remaining tweets in the output file
-    outfile = open(out_filename, "w")
-    out_label_file = open(out_label_filename, 'w')
+    outfile = open(out_filename, "w+")
+    out_label_file = open(out_label_filename, 'w+')
     for tweet in line_to_occ.keys():
         if line_to_occ[tweet][0] < 2:
             outfile.write(tweet)
@@ -122,7 +122,7 @@ def remove_both_duplicate_tweets(in_filename, out_filename, out_label_filename):
 
 def spaces(in_filename, out_filename):
     print('\tHandling spaces...')
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub(' +', ' ', tweet))
     outfile.close()
@@ -133,7 +133,7 @@ def spaces(in_filename, out_filename):
 def hashtags(in_filename, out_filename):
     print('\tHandling hashtags...')
     load()
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         new_tweet = []
         list_of_words = tweet.split(' ')
@@ -159,7 +159,7 @@ def hashtags(in_filename, out_filename):
 
 def autocorrect(in_filename, out_filename):
     print('\tAuto-correcting tweets...')
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         outfile.write(' '.join([spell(w) for w in tweet.split()]))
     outfile.close()
@@ -169,7 +169,7 @@ def autocorrect(in_filename, out_filename):
 
 def contractions(in_filename, out_filename):
     print('\tHandling contractions...')
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     contractions = dictionaries.load_dict_contractions()
     for tweet in open(in_filename, "r"):
         tweet_list = tweet.split()
@@ -188,7 +188,7 @@ def contractions(in_filename, out_filename):
 
 def smileys(in_filename, out_filename):
     print('\tHandling smileys...')
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     smileys = dictionaries.load_dict_smileys()
     for tweet in open(in_filename, "r"):
         tweet_list = tweet.split()
@@ -207,7 +207,7 @@ def smileys(in_filename, out_filename):
 
 def numbers(in_filename, out_filename):
     print('\tHandling numbers...')
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub('[-+]?\d*\.\d+|\d+', '<number>', tweet))
     outfile.close()
@@ -217,7 +217,7 @@ def numbers(in_filename, out_filename):
 
 def remove_hooks(in_filename, out_filename):
     print('\tRemoving hooks...')
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         outfile.write(re.sub(' *<.*?> *', '', tweet))
     outfile.close()
@@ -227,7 +227,7 @@ def remove_hooks(in_filename, out_filename):
 
 def punctuation(in_filename, out_filename):
     print('\tHandling punctuation...')
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         tweet_blob = TextBlob(tweet)
         outfile.write(' '.join(tweet_blob.words))
@@ -239,7 +239,7 @@ def punctuation(in_filename, out_filename):
 
 # TODO: CHANGE THIS, stopwords contain negative words
 def stopw(in_filename, out_filename):
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         tweet_list = tweet.split()
         clean_tokens = [t for t in tweet_list if re.match(r'[^\W\d]*$', t)]
@@ -253,7 +253,7 @@ def stopw(in_filename, out_filename):
 
 
 def normalization(in_filename, out_filename):
-    outfile = open(out_filename, "w")
+    outfile = open(out_filename, "w+")
     for tweet in open(in_filename, "r"):
         lem = WordNetLemmatizer()
         normalized_tweet = []
@@ -269,7 +269,7 @@ def normalization(in_filename, out_filename):
 
 
 def add_label(in_filename, out_filename, label_value):
-    outfile = open(out_filename, 'w')
+    outfile = open(out_filename, 'w+')
     for line in open(in_filename, 'r'):
         outfile.write(label_value)
         outfile.write(line)
@@ -279,7 +279,7 @@ def add_label(in_filename, out_filename, label_value):
 
 def concat_files(in_filenames, out_filename):
     print('Concatenating positive and negative files...')
-    with open(out_filename, 'w') as outfile:
+    with open(out_filename, 'w+') as outfile:
         for filename in in_filenames:
             with open(filename) as infile:
                 for line in infile:

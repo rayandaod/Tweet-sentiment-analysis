@@ -39,7 +39,7 @@ def write_predictions_in_csv(label_predictions, predictions_file_path):
     for i in np.arange(len(label_predictions)):
         labels_with_ids.append(str(i + 1) + ',' + str(label_predictions[i]))
 
-    with open(predictions_file_path, 'w') as result_file:
+    with open(predictions_file_path, 'w+') as result_file:
         wr = csv.writer(result_file, delimiter=',')
         wr.writerows([x.split(',') for x in labels_with_ids])
 

@@ -6,7 +6,6 @@ sys.path.append(BASE_PATH+'/..')
 
 from tensorflow import keras
 import numpy as np
-from sklearn.model_selection import train_test_split
 
 import src.paths as paths
 import src.params as params
@@ -80,9 +79,6 @@ def better_predict():
     # model = CNN_model_2()
     # model = autoEncodeDecodeLayer_model()
     # model = biLSTM_model()
-    # model = biLSTMAttDlayer()
-    # model = biLSTMAttDlayer_model()
-    # model = biGRUAttlayer_model()
     model.summary()
 
     # es = keras.callbacks.EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=params.NN_PATIENCE)
@@ -118,37 +114,6 @@ def biLSTM_model():
     model = keras.Sequential()
     model.add(embedding_layer)
     model.add(keras.layers.Bidirectional(keras.layers.LSTM(128)))
-    model.add(keras.layers.Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
-    return model
-
-
-def biGRUAttlayer_model():
-    model = keras.Sequential()
-    model.add(embedding_layer)
-    model.add(keras.layers.Bidirectional(keras.layers.GRU(100, return_sequences=True)))
-    model.add(AttLayer(64))
-    model.add(keras.layers.Dense(1, activation='sigmoid'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-
-
-def biLSTMAttlayer():
-    model = keras.Sequential()
-    model.add(embedding_layer)
-    model.add(keras.layers.Bidirectional(keras.layers.LSTM(100, return_sequences=True)))
-    model.add(AttLayer(64))
-    model.add(keras.layers.Dense(1, activation='sigmoid'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-    return model
-
-
-def biLSTMAttDlayer_model():
-    model = keras.Sequential()
-    model.add(embedding_layer)
-    model.add(keras.layers.Bidirectional(keras.layers.LSTM(100, return_sequences=True)))
-    model.add(AttLayer(64))
-    model.add(keras.layers.Dense(256, activation="relu"))
-    model.add(keras.layers.Dropout(0.25))
     model.add(keras.layers.Dense(1, activation='sigmoid'))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
     return model

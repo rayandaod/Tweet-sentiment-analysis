@@ -3,9 +3,10 @@ import sys
 import numpy as np
 
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, StratifiedKFold
 
 import tensorflow.keras as keras
+from tensorflow_core.python.training import learning_rate_decay
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH+'/..')
@@ -61,32 +62,31 @@ def neural_network(tweet_embeddings, labels, test_embeddings):
     :param test_embeddings:
     :return:
     """
-    model = keras.Sequential()
-    model.add(keras.layers.Dense(256, input_dim=tweet_embeddings.shape[1], activation='relu'))
-    model.add(keras.layers.Dense(1, activation='sigmoid'))
-    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 
     if params.SUBMISSION:
+        model = keras.Sequential()
+        model.add(keras.layers.Dense(256, input_dim=tweet_embeddings.shape[1], activation='relu'))
+        model.add(keras.layers.Dense(1, activation='sigmoid'))
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
         model.fit(tweet_embeddings, np.asarray(helper.transform_labels(labels)), epochs=params.NN_N_EPOCHS,
                   batch_size=params.NN_BATCH_SIZE, verbose=params.NN_VERBOSE)
         return helper.inv_transform_labels(np.round(model.predict(test_embeddings)))
     else:
-        n_split = params.CV_FOLDS
-        accuracies = np.zeros(n_split)
-        i = 1
-        for train_index, test_index in KFold(n_split).split(tweet_embeddings):
+        for train_index, test_index in StratifiedKFold(params.CV_FOLDS, shuffle=True).split(tweet_embeddings, labels):
             X_train, X_test = [tweet_embeddings[x] for x in train_index], [tweet_embeddings[x] for x in test_index]
             y_train, y_test = [labels[x] for x in train_index], [labels[x] for x in test_index]
 
+            model = keras.Sequential()
+            model.add(keras.layers.Dense(256, input_dim=tweet_embeddings.shape[1], activation='relu'))
+            model.add(keras.layers.Dense(1, activation='sigmoid'))
+            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+            es = keras.callbacks.EarlyStopping(monitor='val_accuracy', mode='max', verbose=1, patience=params.NN_PATIENCE)
             model.fit(np.asarray(X_train), np.asarray(helper.transform_labels(y_train)), epochs=params.NN_N_EPOCHS,
-                      batch_size=params.NN_BATCH_SIZE,
-                      verbose=params.NN_VERBOSE)
-            _, accuracy = model.evaluate(np.asarray(X_test), np.asarray(helper.transform_labels(y_test)),
-                                         verbose=params.NN_VERBOSE)
-            print('Accuracy for CV {} = {}'.format(i, accuracy * 100))
-            accuracies[i-1] = accuracy
-            i += 1
-        print('Overall accuracy = {}'.format(np.mean(accuracies)))
+                      batch_size=params.NN_BATCH_SIZE, verbose=params.NN_VERBOSE,
+                      validation_data=(np.asarray(X_test), np.asarray(helper.transform_labels(y_test))),
+                      callbacks=[es])
 
 
 if __name__ == '__main__':
