@@ -71,14 +71,14 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place i
                 ├── dictionaries.py                 Regroups the dictionaries we used during the preprocessing part.
                 ├── preprocess.py                   Regroups all the preprocessing algorithms we implemented.
            ├── __init__.py
-           ├── params.py                            Control tower, see below for more details.
+           ├── params.py                            Regroups all the parameters that control this project.
            ├── paths.py                             Regroups all the file paths required for our algorithm.
            ├── run.py                               To be run after the above instructions to execute our pipeline.
         ├── .gitignore
 
 --------
 
-#### Technical Overview
+### Technical Overview
 
 1. Preprocessing:
 - Remove the tweets that are in both positive and negative tweet files
