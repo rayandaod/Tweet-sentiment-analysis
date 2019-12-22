@@ -45,7 +45,7 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place i
             ├── train_pos_full.txt                  The big training set of positive tweets.
             ├── train_neg.txt                       The small training set of negative tweets.
             ├── train_neg_full.txt                  The big training set of negative tweets.
-            ├── test_data.txt                       The test set of tweets on which to predict our algorithm.
+            ├── test_data.txt                       The test set of tweets on which to predict the labels with our algorithm.
             ├── sample_submission.csv               An example of submission file to be submitted on AICrowd.
         ├── src/
             ├── embeddings/
