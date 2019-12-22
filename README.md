@@ -30,7 +30,7 @@ In order to run our project, you will need to install the following modules:
 
 Please use usual command as `pip install [module]` by changing [module] to the corresponding module name.
 
-### Folder structures.
+## Folder structure
 
 Create a folder `data`in the repository at the root of the project. 
 Inside `data`, create the folders `preprocessed` and `glove.twitter.27B`.
@@ -42,19 +42,22 @@ In `preprocessed`, create the empty folders `neg`, `pos`, `test`.
 Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place it inside the folder `glove.twitter.27B`. At the end, you should obtain the following folder structure:
 
 
-#### Folder structure
-------------
-
-    ├── Tweet-classification                     
-        ├── data
-            ├── glove.twitter.27B 
+    ├── Tweet-classification/                 
+        ├── data/
+            ├── glove.twitter.27B/
                 ├── glove.twitter.27B.200d.txt      The file regrouping all the pre-trained embedding vectors we used for our                                                    algorithm.
-            ├── preprocessed       
-            ├── pos
-            ├── neg
-            ├── test
-        ├── src
-            ├── embeddings
+            ├── preprocessed/
+            ├── pos/
+            ├── neg/
+            ├── test/
+            ├── train_pos.txt
+            ├── train_pos_full.txt
+            ├── train_neg.txt
+            ├── train_neg_full.txt
+            ├── test_data.txt
+            ├── sample_submission.csv
+        ├── src/
+            ├── embeddings/
                 ├── __init__.py
                 ├── cooc.py                         Generates a coocurrence matrix from the words of our vocabulary.
                 ├── glove_GD.py                     Implements a Gradient Descent version of Glove.
@@ -62,11 +65,11 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place i
                 ├── tf_idf.py                       Regroups some functions we used for an alternative method.
                 ├── tweet_embeddings.py             Creates tweet embeddings from the word embeddings.
                 ├── vocab.py                        Takes care about creating a vocabulary from our corpus.
-            ├── prediction
+            ├── prediction/
                 ├── __init__.py
                 ├── better_predict.py               Regroups all the implementations we tried for the training part.
                 ├── predict.py                      Stores the two training algorithms we used in the end.
-            ├── preprocessing
+            ├── preprocessing/
                 ├── __init__.py
                 ├── dictionaries.py                 Regroups the dictionaries we used during the preprocessing part.
                 ├── preprocess.py                   Regroups all the preprocessing algorithms we implemented.
@@ -76,9 +79,8 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place i
            ├── run.py                               To be run after the above instructions to execute our pipeline.
         ├── .gitignore
 
---------
 
-### Technical Overview
+## Technical Overview
 
 1. Preprocessing:
 - Remove the tweets that are in both positive and negative tweet files
@@ -92,4 +94,3 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place i
 
 3. Prediction:
 - We used different models to predict. The best one was a Neural Network with one hidden layer of 256 nodes (c.f report for more informations).
-
