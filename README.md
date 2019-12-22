@@ -41,12 +41,12 @@ Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place i
             ├── pos/
             ├── neg/
             ├── test/
-            ├── train_pos.txt
-            ├── train_pos_full.txt
-            ├── train_neg.txt
-            ├── train_neg_full.txt
-            ├── test_data.txt
-            ├── sample_submission.csv
+            ├── train_pos.txt                       The small training set of positive tweets.
+            ├── train_pos_full.txt                  The big training set of positive tweets.
+            ├── train_neg.txt                       The small training set of negative tweets.
+            ├── train_neg_full.txt                  The big training set of negative tweets.
+            ├── test_data.txt                       The test set of tweets on which to predict our algorithm.
+            ├── sample_submission.csv               An example of submission file to be submitted on AICrowd.
         ├── src/
             ├── embeddings/
                 ├── __init__.py
