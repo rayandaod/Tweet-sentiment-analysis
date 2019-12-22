@@ -2,12 +2,12 @@
 
 Project 2 of EPFL Machine Learning course: Twitter sentiment analysis
 
-**Authors**: Rayan Daod Nathoo, Yann Meier, Kopiga Rasiah.
+**Authors**: Rayan Daod Nathoo, Yann Meier, Kopiga Rasiah
 
 **Deadline**: 19.12.2019
 
-The goal of this sentiment analysis project is to classify whether a tweet is positve or negative by considering its text only. We have used Python 3.6 to implement this project.
-
+The goal of this sentiment analysis project is to classify whether a tweet is positve or negative by considering its text only. 
+Language used: Python
 
 ## Getting started
 
@@ -15,29 +15,20 @@ To start, please clone this repository.
 
 In order to run our project, you will need to install the following modules:
 
-`Numpy`
-
-`Keras with TensorFlow backend`
-
-`TextBlob`
-
-`NLTK`
-
-`Wordsegment`
-
-`Autocorrect`
-
+`Numpy`, `Tensorflow`, `TextBlob`, `NLTK`, `Wordsegment`, `Autocorrect`, `Keras`
 
 Please use usual command as `pip install [module]` by changing [module] to the corresponding module name.
 
 ## Folder structure
 
-Create a folder `data`in the repository at the root of the project. 
+Create a folder `data`in the repository at the root of the project.
+
 Inside `data`, create the folders `preprocessed` and `glove.twitter.27B`.
+
 Again inside `data`, place the training and test sets retrieved from AICrowd.
 
 
-In `preprocessed`, create the empty folders `neg`, `pos`, `test`.
+In the `preprocessed` folder, create the empty folders `neg`, `pos`, `test`.
 
 Download the file http://nlp.stanford.edu/data/glove.twitter.27B.zip and place it inside the folder `glove.twitter.27B`. At the end, you should obtain the following folder structure:
 
