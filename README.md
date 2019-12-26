@@ -15,7 +15,7 @@ To start, please clone this repository.
 
 In order to run our project, you will need to install the following modules:
 
-`Numpy`, `Tensorflow`, `TextBlob`, `NLTK`, `Wordsegment`, `Autocorrect`, `Keras`
+`Numpy`, `Tensorflow`, `TextBlob`, `NLTK`, `Wordsegment`, `Autocorrect`, `Keras`, `Sklearn`
 
 Please use usual command as `pip install [module]` by changing [module] to the corresponding module name.
 
